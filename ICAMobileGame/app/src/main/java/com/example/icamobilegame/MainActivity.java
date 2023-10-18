@@ -11,6 +11,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        gameView= new GameView(this);
+        setContentView(gameView);
+    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+        gameView.resume();
+    }
+    protected void onPause(){
+        super.onPause();
+        gameView.pause();
     }
 }
