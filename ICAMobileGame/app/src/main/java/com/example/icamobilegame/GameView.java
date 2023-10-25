@@ -13,29 +13,28 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class GameView extends SurfaceView implements Runnable {
-
+public class GameView extends SurfaceView implements Runnable
+{
     private SurfaceHolder surfaceHolder;
     private Bitmap bitmap;
     private Canvas canvas;
     private Thread gameThread;
     private Context privContext;
+    private MediaPlayer mediaPlayer;
 
-    private float xPos=10,yPos=10;
+    private float xPos=10, yPos=10;
+    private float velocity=250;
     private int frameCount=4;
     private int currentFrame;
     private int frameLengthInMS=100;
-    private float velocity=250;
-    public int frameW = 115, frameH = 137;
+    private int frameW = 115, frameH = 137;
+
     private long fps;
     private long timeThisFrame=100;
     private long lastFrameChangeTime=0;
 
     private boolean  isMoving;
     private volatile boolean playing;
-
-    MediaPlayer mediaPlayer;
-
 
     private Rect frameToDraw =
             new Rect(0,0,frameW,frameH);
@@ -55,6 +54,7 @@ public class GameView extends SurfaceView implements Runnable {
     public void pause()
     {
         playing=false;
+        mediaPlayer.pause();
         try{
             gameThread.join();
         }catch(InterruptedException ie){
@@ -64,21 +64,24 @@ public class GameView extends SurfaceView implements Runnable {
     public void resume()
     {
         playing=true;
-
         mediaPlayer.start();
         gameThread= new Thread(this);
-
         gameThread.start();
     }
 
-    @Override
-    public void run() {
+    public void stop()
+    {
+        mediaPlayer.release();
+    }
 
+    @Override
+    public void run()
+    {
         while(playing)
         {
             long startFrameTime= System.currentTimeMillis();
-            update();
 
+            update();
             draw();
             timeThisFrame= System.currentTimeMillis()-startFrameTime;
             if(timeThisFrame >= 1)
@@ -86,13 +89,16 @@ public class GameView extends SurfaceView implements Runnable {
                 fps= 1000 / timeThisFrame;
             }
         }
+
     }
 
 
-    public void draw(){
-        if(surfaceHolder.getSurface().isValid()){
+    public void draw()
+    {
+        if(surfaceHolder.getSurface().isValid())
+        {
             canvas= surfaceHolder.lockCanvas();
-            canvas.drawColor(Color.BLACK);
+            canvas.drawColor(Color.WHITE);
             whereToDraw.set(xPos,yPos,
                     xPos+frameW, yPos+frameH);
             manageCurrentFrame();
@@ -101,7 +107,8 @@ public class GameView extends SurfaceView implements Runnable {
             surfaceHolder.unlockCanvasAndPost(canvas);
         }
     }
-    private void update(){
+    private void update()
+    {
         if(isMoving)
         {
             xPos = xPos + velocity / fps;
@@ -135,13 +142,16 @@ public class GameView extends SurfaceView implements Runnable {
         frameToDraw.right=frameToDraw.left+frameW;
     }
     @Override
-    public boolean onTouchEvent(MotionEvent event){
-        switch(event.getAction() & MotionEvent.ACTION_MASK){
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        switch(event.getAction() & MotionEvent.ACTION_MASK)
+        {
             case MotionEvent.ACTION_DOWN:
                 isMoving = !isMoving;
                 break;
-        }
 
+
+        }
         return true;
     }
 

@@ -23,4 +23,10 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         gameView.pause();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        gameView.stop();
+    }
 }
