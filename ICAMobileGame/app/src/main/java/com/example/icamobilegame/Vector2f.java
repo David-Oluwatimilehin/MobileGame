@@ -23,9 +23,21 @@ public class Vector2f extends java.lang.Object
         x=other.x;
         y=other.y;
     }
-    public void Scale(int value){
-        x*=value;
-        y*=value;
+    public void Scale(int value) {
+        x *= value;
+        y *= value;
+    }
+    public double Dot(Vector2f other){
+        return 0;
+    }
+    public double DotProduct(Vector2f a, Vector2f b){
+        return 0;
+    }
+    public double Cross(Vector2f other){
+        return 0;
+    }
+    public double CrossProduct(Vector2f a, Vector2f b) {
+        return 0;
     }
     public void Set(double vecX, double vecY){
         x=vecX;
