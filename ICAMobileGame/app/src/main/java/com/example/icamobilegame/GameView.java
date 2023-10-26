@@ -22,6 +22,8 @@ public class GameView extends SurfaceView implements Runnable
     private Context privContext;
     private MediaPlayer mediaPlayer;
 
+    private Vector2f playerPos= new Vector2f(10,10);
+    private Vector2f playerVel= new Vector2f(250,0);
     private float xPos=10, yPos=10;
     private float velocity=250;
     private int frameCount=4;
@@ -40,9 +42,12 @@ public class GameView extends SurfaceView implements Runnable
             new Rect(0,0,frameW,frameH);
     // The place where it is going to be displayed
     private RectF whereToDraw =
-            new RectF(xPos, yPos, xPos + frameW, frameH);
+            new RectF((float)playerPos.x, (float)playerPos.y, (float) playerPos.x+ frameW, frameH);
 
-    public GameView(Context context){
+
+
+    public GameView(Context context)
+    {
         super(context);
         privContext=context.getApplicationContext();
         mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
@@ -51,6 +56,12 @@ public class GameView extends SurfaceView implements Runnable
         bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
                 frameH,false);
     }
+    public void PrintMsg()
+    {
+        System.out.println("POSITION: " + playerPos.toString());
+    }
+
+
     public void pause()
     {
         playing=false;
@@ -80,7 +91,7 @@ public class GameView extends SurfaceView implements Runnable
         while(playing)
         {
             long startFrameTime= System.currentTimeMillis();
-
+            PrintMsg();
             update();
             draw();
             timeThisFrame= System.currentTimeMillis()-startFrameTime;
@@ -92,37 +103,39 @@ public class GameView extends SurfaceView implements Runnable
 
     }
 
-
     public void draw()
     {
         if(surfaceHolder.getSurface().isValid())
         {
             canvas= surfaceHolder.lockCanvas();
             canvas.drawColor(Color.WHITE);
-            whereToDraw.set(xPos,yPos,
-                    xPos+frameW, yPos+frameH);
+            whereToDraw.set((float)playerPos.x,(float)playerPos.y,
+                    (float)playerPos.x+frameW, (float)playerPos.y+frameH);
             manageCurrentFrame();
             canvas.drawBitmap(bitmap,frameToDraw,
                     whereToDraw,null);
             surfaceHolder.unlockCanvasAndPost(canvas);
         }
     }
+
     private void update()
     {
         if(isMoving)
         {
-            xPos = xPos + velocity / fps;
-            if (xPos > getWidth())
+            playerPos.x = (float)playerPos.x + playerVel.x / fps;
+
+            if (playerPos.x > getWidth())
             {
-                yPos += frameH;
-                xPos = 10;
+                playerPos.y += frameH;
+                playerPos.x = 10;
             }
-            if (yPos + frameH > getHeight())
+            if (playerPos.y + frameH > getHeight())
             {
-                yPos = 10;
+                playerPos.y = 10;
             }
         }
     }
+
     public void manageCurrentFrame()
     {
         long time= System.currentTimeMillis();
@@ -141,6 +154,7 @@ public class GameView extends SurfaceView implements Runnable
         frameToDraw.left= currentFrame*frameW;
         frameToDraw.right=frameToDraw.left+frameW;
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
@@ -149,7 +163,6 @@ public class GameView extends SurfaceView implements Runnable
             case MotionEvent.ACTION_DOWN:
                 isMoving = !isMoving;
                 break;
-
 
         }
         return true;

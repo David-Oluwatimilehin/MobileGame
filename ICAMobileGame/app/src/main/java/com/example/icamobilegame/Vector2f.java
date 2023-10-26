@@ -6,7 +6,6 @@ public class Vector2f extends java.lang.Object
 {
     protected double x,y;
 
-
     public Vector2f()
     {
         x=0;
@@ -50,14 +49,19 @@ public class Vector2f extends java.lang.Object
         return new Vector2f(x,y);
     }
     public static Vector2f Sum(Vector2f a, Vector2f b){
-        Vector2f tempVec= new Vector2f();
-        tempVec.x= a.x + b.x;
-        tempVec.y= a.y + b.y;
+        Vector2f tempVec = new Vector2f(a.x, a.y);
+        tempVec.x += b.x;
+        tempVec.y += b.y;
         return tempVec;
     }
+    public void Divide(Vector2f vec,long scalar){
+        vec.x/=scalar;
+        vec.y/=scalar;
+
+    }
     public Vector2f Sub(Vector2f vec){
-        x-= vec.x;
-        y-= vec.y;
+        x -= vec.x;
+        y -= vec.y;
         return new Vector2f(x,y);
     }
     public Vector2f Normalize()
