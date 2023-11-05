@@ -3,16 +3,19 @@ package com.example.icamobilegame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 
 public class MainActivity extends AppCompatActivity {
 
     GameView gameView;
-
+    DisplayMetrics display= new DisplayMetrics();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gameView= new GameView(this);
+        getWindowManager().getDefaultDisplay().getMetrics(display);
+        gameView= new GameView(this, display);
         setContentView(gameView);
+
     }
     @Override
     protected void onResume(){
