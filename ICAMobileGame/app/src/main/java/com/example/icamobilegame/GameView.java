@@ -12,9 +12,12 @@ import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.Display;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.core.math.MathUtils;
 
 public class GameView extends SurfaceView implements Runnable
 {
@@ -27,14 +30,23 @@ public class GameView extends SurfaceView implements Runnable
     private MediaPlayer mediaPlayer;
     private DisplayMetrics display=new DisplayMetrics();
 
-    int screeHeight;
+    int screenHeight;
     int screenWidth;
 
     private int frameLengthInMS=100;
     private int frameW = 115, frameH = 137;
 
     private Vector2f playerPos= new Vector2f(500,900);
-    private Vector2f playerVel= new Vector2f(250,0);
+
+    private float jumpTime=1.0f;
+    float jumpHeight = 10.0f;
+    private float jumpForce=(jumpHeight*2.0f) / (jumpTime/2.0f);
+    private double gravity=(-2*jumpHeight)/ Math.pow(jumpTime/2.0f,2);
+
+    private Vector2f playerVel= new Vector2f(0,0);
+
+
+
 
     private float velocity=250;
     private int frameCount=4;
@@ -65,16 +77,16 @@ public class GameView extends SurfaceView implements Runnable
         privContext=context.getApplicationContext();
         mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
 
-        screeHeight=dis.heightPixels;
+        screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
 
 
-        whereToDrawBackgorund= new RectF(0,0, (float)screeHeight, (float)screenWidth);
+        whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
         surfaceHolder = getHolder();
         background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
         background= Bitmap.createScaledBitmap(background,screenWidth,
-                screeHeight,false);
+                screenHeight,false);
 
         bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
         bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
@@ -128,6 +140,22 @@ public class GameView extends SurfaceView implements Runnable
 
     }
 
+    private void ApplyGravity()
+    {
+        boolean falling= playerVel.y< 0;
+
+        //playerPos.y += Gravity * Time.de;
+
+    }
+
+    private void GroundMovement()
+    {
+
+    }
+
+
+
+
     public void draw()
     {
         if(surfaceHolder.getSurface().isValid())
@@ -139,7 +167,7 @@ public class GameView extends SurfaceView implements Runnable
                     (float)playerPos.x+frameW, (float)playerPos.y+frameH);
             manageCurrentFrame();
 
-            //canvas.drawBitmap(background,frameToDraw,whereToDrawBackgorund,null);
+            canvas.drawBitmap(background,frameToDraw,whereToDrawBackgorund,null);
             drawEndlessBackground(canvas,whereToDrawBackgorund.right,whereToDrawBackgorund.top);
 
             canvas.drawBitmap(bitmap,frameToDraw,
@@ -149,11 +177,11 @@ public class GameView extends SurfaceView implements Runnable
     }
     private void drawEndlessBackground(Canvas canvas, float left, float top) {
 
-        float modLeft = left % screeHeight;
+        float modLeft = left % screenHeight;
 
         canvas.drawBitmap(background, modLeft, top, null);
 
-        if (left < 0) {
+        /*if (left < 0) {
 
             canvas.drawBitmap(background, modLeft + screenWidth, top, null);
 
@@ -161,16 +189,22 @@ public class GameView extends SurfaceView implements Runnable
 
             canvas.drawBitmap(background, modLeft - screenWidth, top, null);
 
-        }
+        }*/
+
+    }
+    private void animateDot()
+    {
+
+
 
     }
     private void update()
     {
+
         if(isMoving)
         {
-            //whereToDrawBackgorund;
-            whereToDrawBackgorund.top+=1;
-            whereToDrawBackgorund.bottom+=1;
+
+
             /*playerPos.Add(playerVel);
             //playerVel.Divide(playerVel,fps);
             playerPos.x = (float)playerPos.x + playerVel.x / fps;
