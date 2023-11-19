@@ -44,6 +44,15 @@ public class Vector2f extends java.lang.Object
         this.x=vecX;
         this.y=vecY;
     }
+    public double Max(double varOne, double varTwo)
+    {
+        if(varOne<varTwo){
+           return varTwo;
+        }else{
+            return varOne;
+        }
+    }
+
     public Vector2f Multiply(Vector2f vec, double scalar)
     {
         this.x*=scalar;

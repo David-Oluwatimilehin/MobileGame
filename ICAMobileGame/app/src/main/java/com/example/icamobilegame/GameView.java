@@ -41,9 +41,9 @@ public class GameView extends SurfaceView implements Runnable
     private float jumpTime=1.0f;
     float jumpHeight = 10.0f;
     private float jumpForce=(jumpHeight*2.0f) / (jumpTime/2.0f);
-    private double gravity=(-2*jumpHeight)/ Math.pow(jumpTime/2.0f,2);
+    private double Gravity=(-2*jumpHeight)/ Math.pow(jumpTime/2.0f,2);
 
-    private Vector2f playerVel= new Vector2f(0,0);
+    private Vector2f playerVel = new Vector2f(0,0);
 
 
 
@@ -57,6 +57,7 @@ public class GameView extends SurfaceView implements Runnable
     private long timeThisFrame=100;
     private long lastFrameChangeTime=0;
 
+    private boolean isJumping;
     private boolean  isMoving;
     private volatile boolean playing;
 
@@ -142,26 +143,32 @@ public class GameView extends SurfaceView implements Runnable
 
     private void ApplyGravity()
     {
-        boolean falling= playerVel.y< 0;
+        boolean falling = playerVel.y < 0;
+        float multiplier = falling? 2: 1;
 
-        //playerPos.y += Gravity * Time.de;
+        playerVel.y += Gravity * multiplier* fps;
+        playerVel.y = playerVel.Max(playerVel.y,Gravity/2);
 
     }
 
     private void GroundMovement()
     {
+        playerVel.y = playerVel.Max(playerVel.y,0);
+        isJumping = playerVel.y > 0;
 
+        /*if ()
+        {
+            playerVel.y=jumpForce;
+            isJumping = true;
+        }*/
     }
-
-
-
 
     public void draw()
     {
         if(surfaceHolder.getSurface().isValid())
         {
             canvas= surfaceHolder.lockCanvas();
-            //canvas.drawColor(Color.BLACK);
+            canvas.drawColor(Color.BLACK);
             //canvas.setBitmap();
             whereToDraw.set((float)playerPos.x,(float)playerPos.y,
                     (float)playerPos.x+frameW, (float)playerPos.y+frameH);
