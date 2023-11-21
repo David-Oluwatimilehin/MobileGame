@@ -60,8 +60,9 @@ public class Platform {
     }
 
     public void CollisionCheck(Player player){
-        if(rect.intersect(player.getPlayerRect())){
-
+        if(this.rect.intersect(player.getPlayerRect()))
+        {
+            System.out.println("Collision is happening");
         }
     }
 

@@ -43,6 +43,8 @@ public class GameView extends SurfaceView implements Runnable
 
 
     private PlatformManager platformManager;
+    private Player player;
+
     private float velocity=250;
     private int frameCount=4;
     private int currentFrame;
@@ -118,16 +120,18 @@ public class GameView extends SurfaceView implements Runnable
         platformManager= new PlatformManager();
         platformManager.SetPlatforms(context);
 
-        whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
+        player= new Player(context,500,900);
+
+        //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
         surfaceHolder = getHolder();
         background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
         background= Bitmap.createScaledBitmap(background,screenWidth,
                 screenHeight,false);
 
-        bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
+        /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
         bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
-                frameH,false);
+                frameH,false);*/
     }
     public void PrintMsg()
     {
@@ -180,46 +184,29 @@ public class GameView extends SurfaceView implements Runnable
             manageCurrentFrame();
 
 
-
-
-
             platformManager.DrawPlatforms(canvas);
 
-            canvas.drawBitmap(bitmap,frameToDraw,
-                    whereToDraw,null);
+            player.draw(canvas);
+
+            //canvas.drawBitmap(bitmap,frameToDraw,
+                    //whereToDraw,null);
             surfaceHolder.unlockCanvasAndPost(canvas);
         }
     }
-    private void drawEndlessBackground(Canvas canvas, float left, float top) {
-
-        float modLeft = left % screenHeight;
-
-        canvas.drawBitmap(background, modLeft, top, null);
-
-        /*if (left < 0) {
-
-            canvas.drawBitmap(background, modLeft + screenWidth, top, null);
-
-        } else {
-
-            canvas.drawBitmap(background, modLeft - screenWidth, top, null);
-
-        }*/
-
-    }
-    private void animateDot()
-    {
 
 
-
-    }
     private void update()
     {
 
         if(isMoving)
         {
 
-            HandleInput();
+            platformManager.PlatformCollisionCheck(player);
+
+
+
+            //HandleInput();
+
             /*playerPos.Add(playerVel);
             //playerVel.Divide(playerVel,fps);
             playerPos.x = (float)playerPos.x + playerVel.x / fps;

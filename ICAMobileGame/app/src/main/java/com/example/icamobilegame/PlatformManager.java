@@ -29,12 +29,20 @@ public class PlatformManager {
 
             tempPlat =new Platform(context,SpawnX,SpawnY,1950,950);
             this.platformsList.add(tempPlat);
-            //this.platformsList.get(i).Set(SpawnX,SpawnY);
+
+        }
+    }
+
+    void PlatformCollisionCheck(Player playerRef){
+        for(Platform p: this.platformsList)
+        {
+            p.CollisionCheck(playerRef);
         }
     }
     void DrawPlatforms(Canvas canvas)
     {
-        for (Platform p : this.platformsList) {
+        for (Platform p : this.platformsList)
+        {
             p.draw(canvas);
         }
     }
