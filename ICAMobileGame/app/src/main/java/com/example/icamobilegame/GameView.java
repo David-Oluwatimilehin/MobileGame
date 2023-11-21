@@ -94,12 +94,20 @@ public class GameView extends SurfaceView implements Runnable
             //PrintMsg();
             update();
             draw();
-            timeThisFrame= System.currentTimeMillis()-startFrameTime;
-            if(timeThisFrame >= 1)
-            {
-                fps= 1000 / timeThisFrame;
-            }
+            GetFPS(startFrameTime);
         }
+
+    }
+    public float GetFPS(long beginFrameTime){
+
+        timeThisFrame= System.currentTimeMillis()-beginFrameTime;
+
+        if(timeThisFrame >= 1)
+        {
+            fps= 1000 / timeThisFrame;
+        }
+        System.out.println(fps);
+        return fps;
 
     }
 
@@ -121,7 +129,7 @@ public class GameView extends SurfaceView implements Runnable
         platformManager.SetPlatforms(context);
 
         player= new Player(context,500,900);
-
+        player.SetupPlayer(context,4);
         //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
         surfaceHolder = getHolder();
@@ -132,11 +140,6 @@ public class GameView extends SurfaceView implements Runnable
         /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
         bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
                 frameH,false);*/
-    }
-    public void PrintMsg()
-    {
-        System.out.println("POSITION: " + (float)playerPos.x+" "+
-                (float)playerPos.y);
     }
 
 
@@ -181,12 +184,17 @@ public class GameView extends SurfaceView implements Runnable
             //canvas.setBitmap();
             whereToDraw.set((float)playerPos.x,(float)playerPos.y,
                     (float)playerPos.x+frameW, (float)playerPos.y+frameH);
+
+            platformManager.DrawPlatforms(canvas);
+            player.draw(canvas);
+
+            //canvas.drawText();
             manageCurrentFrame();
 
 
-            platformManager.DrawPlatforms(canvas);
 
-            player.draw(canvas);
+
+
 
             //canvas.drawBitmap(bitmap,frameToDraw,
                     //whereToDraw,null);
@@ -203,7 +211,7 @@ public class GameView extends SurfaceView implements Runnable
 
             platformManager.PlatformCollisionCheck(player);
 
-
+            player.update();
 
             //HandleInput();
 
@@ -238,8 +246,7 @@ public class GameView extends SurfaceView implements Runnable
                 currentFrame=0;
             }
         }
-        frameToDraw.left= currentFrame*frameW;
-        frameToDraw.right=frameToDraw.left+frameW;
+        //player.Animate(currentFrame);
     }
 
     @Override

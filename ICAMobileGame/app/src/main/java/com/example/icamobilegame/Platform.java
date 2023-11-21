@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Random;
 
 public class Platform {
@@ -54,17 +56,18 @@ public class Platform {
 
     }
 
-    public void Set(int valX,int valY){
-        this.x=valX;
-        this.y=valY;
-    }
+
 
     public void CollisionCheck(Player player){
         if(this.rect.intersect(player.getPlayerRect()))
         {
-            System.out.println("Collision is happening");
+            //System.out.println("Collision is happening");
+        }
+        else{
+            //System.out.println("Collision not Happening");
         }
     }
+
 
     public void draw(Canvas canvas) {
 
