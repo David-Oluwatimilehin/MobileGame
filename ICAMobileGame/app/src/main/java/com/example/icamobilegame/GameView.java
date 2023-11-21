@@ -47,7 +47,7 @@ public class GameView extends SurfaceView implements Runnable
 
 
 
-    private Platform platform;
+    private PlatformManager platformManager;
     private float velocity=250;
     private int frameCount=4;
     private int currentFrame;
@@ -120,7 +120,9 @@ public class GameView extends SurfaceView implements Runnable
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
 
-        platform=new Platform(context,600,900);
+        platformManager= new PlatformManager();
+        platformManager.SetPlatforms(context,20);
+
         whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
         surfaceHolder = getHolder();
@@ -176,7 +178,7 @@ public class GameView extends SurfaceView implements Runnable
         if(surfaceHolder.getSurface().isValid())
         {
             canvas= surfaceHolder.lockCanvas();
-            canvas.drawColor(Color.BLACK);
+            canvas.drawColor(Color.WHITE);
             //canvas.setBitmap();
             whereToDraw.set((float)playerPos.x,(float)playerPos.y,
                     (float)playerPos.x+frameW, (float)playerPos.y+frameH);
@@ -184,9 +186,10 @@ public class GameView extends SurfaceView implements Runnable
 
 
 
-            canvas.drawBitmap(background,frameToDraw,whereToDrawBackgorund,null);
-            drawEndlessBackground(canvas,whereToDrawBackgorund.right,whereToDrawBackgorund.top);
-            
+
+
+            platformManager.DrawPlatforms(canvas);
+
             canvas.drawBitmap(bitmap,frameToDraw,
                     whereToDraw,null);
             surfaceHolder.unlockCanvasAndPost(canvas);
@@ -262,8 +265,6 @@ public class GameView extends SurfaceView implements Runnable
     {
         switch(event.getAction() & MotionEvent.ACTION_MASK)
         {
-
-
             case MotionEvent.ACTION_DOWN:
                 jumpPressed =!jumpPressed;
                 //System.out.println(jumpPressed);

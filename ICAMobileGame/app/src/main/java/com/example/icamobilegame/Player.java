@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 
 public class Player {
     private Bitmap playerBitmap;
+
     private int x, y;
     private int speedY;
 
@@ -22,6 +23,8 @@ public class Player {
     }
 
     public void draw(Canvas canvas) {
+
         canvas.drawBitmap(playerBitmap, x, y, null);
+
     }
 }
