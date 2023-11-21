@@ -7,17 +7,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.util.Log;
-import android.view.Display;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import androidx.core.math.MathUtils;
 
 public class GameView extends SurfaceView implements Runnable
 {
@@ -121,7 +116,7 @@ public class GameView extends SurfaceView implements Runnable
         screenWidth=dis.widthPixels;
 
         platformManager= new PlatformManager();
-        platformManager.SetPlatforms(context,20);
+        platformManager.SetPlatforms(context);
 
         whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 

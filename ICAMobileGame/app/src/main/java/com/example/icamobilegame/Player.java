@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 public class Player {
     private Bitmap playerBitmap;
 
     private int x, y;
+    private Rect playerRect;
     private int speedY;
 
     public Player(Context context, int x, int y) {
@@ -19,6 +21,7 @@ public class Player {
     }
 
     public void update() {
+
         y += speedY;
     }
 
@@ -26,5 +29,9 @@ public class Player {
 
         canvas.drawBitmap(playerBitmap, x, y, null);
 
+    }
+
+    public Rect getPlayerRect() {
+        return playerRect;
     }
 }
