@@ -47,7 +47,7 @@ public class GameView extends SurfaceView implements Runnable
 
 
 
-
+    private Platform platform;
     private float velocity=250;
     private int frameCount=4;
     private int currentFrame;
@@ -57,8 +57,9 @@ public class GameView extends SurfaceView implements Runnable
     private long timeThisFrame=100;
     private long lastFrameChangeTime=0;
 
+    private boolean jumpPressed=false;
     private boolean isJumping;
-    private boolean  isMoving;
+    private boolean  isMoving=true;
     private volatile boolean playing;
 
     private Rect frameToDraw =
@@ -69,36 +70,6 @@ public class GameView extends SurfaceView implements Runnable
 
 
     private RectF whereToDrawBackgorund;
-
-
-
-    public GameView(Context context, DisplayMetrics dis)
-    {
-        super(context);
-        privContext=context.getApplicationContext();
-        mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
-
-        screenHeight=dis.heightPixels;
-        screenWidth=dis.widthPixels;
-
-
-        whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
-
-        surfaceHolder = getHolder();
-        background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
-        background= Bitmap.createScaledBitmap(background,screenWidth,
-                screenHeight,false);
-
-        bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
-        bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
-                frameH,false);
-    }
-    public void PrintMsg()
-    {
-        System.out.println("POSITION: " + (float)playerPos.x+" "+
-                (float)playerPos.y);
-    }
-
 
     public void pause()
     {
@@ -117,12 +88,6 @@ public class GameView extends SurfaceView implements Runnable
         gameThread= new Thread(this);
         gameThread.start();
     }
-
-    public void stop()
-    {
-        mediaPlayer.release();
-    }
-
     @Override
     public void run()
     {
@@ -141,6 +106,48 @@ public class GameView extends SurfaceView implements Runnable
 
     }
 
+    public void HandleInput()
+    {
+        GroundMovement();
+    }
+
+    public GameView(Context context, DisplayMetrics dis)
+    {
+        super(context);
+        privContext=context.getApplicationContext();
+        mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
+
+        screenHeight=dis.heightPixels;
+        screenWidth=dis.widthPixels;
+
+        platform=new Platform(context,600,900);
+        whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
+
+        surfaceHolder = getHolder();
+        background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
+        background= Bitmap.createScaledBitmap(background,screenWidth,
+                screenHeight,false);
+
+        bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
+        bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
+                frameH,false);
+    }
+    public void PrintMsg()
+    {
+        System.out.println("POSITION: " + (float)playerPos.x+" "+
+                (float)playerPos.y);
+    }
+
+
+
+    public void stop()
+    {
+        mediaPlayer.release();
+    }
+
+
+
+
     private void ApplyGravity()
     {
         boolean falling = playerVel.y < 0;
@@ -156,11 +163,12 @@ public class GameView extends SurfaceView implements Runnable
         playerVel.y = playerVel.Max(playerVel.y,0);
         isJumping = playerVel.y > 0;
 
-        /*if ()
+        if (jumpPressed)
         {
-            playerVel.y=jumpForce;
+            //System.out.println("Jump set to true");
+            playerVel.y+=jumpForce;
             isJumping = true;
-        }*/
+        }
     }
 
     public void draw()
@@ -174,9 +182,11 @@ public class GameView extends SurfaceView implements Runnable
                     (float)playerPos.x+frameW, (float)playerPos.y+frameH);
             manageCurrentFrame();
 
+
+
             canvas.drawBitmap(background,frameToDraw,whereToDrawBackgorund,null);
             drawEndlessBackground(canvas,whereToDrawBackgorund.right,whereToDrawBackgorund.top);
-
+            
             canvas.drawBitmap(bitmap,frameToDraw,
                     whereToDraw,null);
             surfaceHolder.unlockCanvasAndPost(canvas);
@@ -211,7 +221,7 @@ public class GameView extends SurfaceView implements Runnable
         if(isMoving)
         {
 
-
+            HandleInput();
             /*playerPos.Add(playerVel);
             //playerVel.Divide(playerVel,fps);
             playerPos.x = (float)playerPos.x + playerVel.x / fps;
@@ -252,10 +262,11 @@ public class GameView extends SurfaceView implements Runnable
     {
         switch(event.getAction() & MotionEvent.ACTION_MASK)
         {
-            case MotionEvent.ACTION_DOWN:
-                isMoving = !isMoving;
-                break;
 
+
+            case MotionEvent.ACTION_DOWN:
+                jumpPressed =!jumpPressed;
+                //System.out.println(jumpPressed);
         }
         return true;
     }
