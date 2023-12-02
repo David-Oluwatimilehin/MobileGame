@@ -255,7 +255,9 @@ public class GameView extends SurfaceView implements Runnable
         switch(event.getAction() & MotionEvent.ACTION_MASK)
         {
             case MotionEvent.ACTION_DOWN:
-                jumpPressed =!jumpPressed;
+                player.isMoving=false;
+                player.Jump();
+
                 //System.out.println(jumpPressed);
         }
         return true;

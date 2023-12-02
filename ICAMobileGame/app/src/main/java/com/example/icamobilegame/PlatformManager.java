@@ -11,7 +11,7 @@ public class PlatformManager {
 
     private List<Platform> platformsList;
     private Random rand;
-    Platform tempPlat;
+    private Platform tempPlat;
 
     int SpawnX;
     int SpawnY;

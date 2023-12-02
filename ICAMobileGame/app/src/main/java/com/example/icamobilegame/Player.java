@@ -12,14 +12,16 @@ import android.graphics.RectF;
 public class Player {
     private Bitmap playerBitmap;
 
-    private int x, y;
+    private int jumpHeight;
+    protected int x, y;
+    private int speedY;
     private int frameW=117,frameH=135;
+
     private Rect playerRect;
     private RectF dstRect;
 
-
     private Paint playerPaint;
-    private int speedY;
+    public boolean isMoving;
 
 
     public void SetupPlayer(Context context, int frameCount){
@@ -34,7 +36,8 @@ public class Player {
         playerPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
         playerPaint.setColor(Color.CYAN);
         this.speedY = 5; // Adjust player speed as needed
-
+        this.jumpHeight=200;
+        this.isMoving=true;
         //SetupPlayer(context,4);
         this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.run);
         this.playerBitmap = Bitmap.createScaledBitmap(playerBitmap,frameW,
@@ -45,6 +48,9 @@ public class Player {
         playerRect.offsetTo(x,y);
     }
 
+    public void Jump(){
+        y-= jumpHeight;
+    }
     public void Animate(int currFrame){
         // TODO: Fix This
         playerRect.left= currFrame * frameW;
@@ -53,14 +59,17 @@ public class Player {
 
     public void update() {
 
-        y += speedY;
+        if(isMoving){
+            y += speedY;
+        }
+
         playerRect.offsetTo(x,y);
     }
 
     public void draw(Canvas canvas) {
 
         canvas.drawRect(playerRect, playerPaint);
-        //canvas.drawBitmap(playerBitmap,x,y,null);
+        canvas.drawBitmap(playerBitmap,x,y,null);
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);
 

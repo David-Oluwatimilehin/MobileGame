@@ -22,7 +22,6 @@ public class Platform {
 
     public Platform(Context context, int x, int y,int screenH, int screenW) {
 
-//rect.
         this.x = x;
         this.y = y;
 
@@ -59,13 +58,13 @@ public class Platform {
 
 
     public void CollisionCheck(Player player){
-        if(this.rect.intersect(player.getPlayerRect()))
+        if (this.rect.intersect(player.getPlayerRect()))
         {
-            //System.out.println("Collision is happening");
+
+            player.isMoving = false;
+
         }
-        else{
-            //System.out.println("Collision not Happening");
-        }
+        //player.isMoving = true;//System.out.println("Collision not Happening");
     }
 
 
