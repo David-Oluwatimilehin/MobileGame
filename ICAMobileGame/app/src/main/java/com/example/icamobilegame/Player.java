@@ -28,28 +28,23 @@ public class Player {
     public boolean isJumping;
     public boolean onPlatform;
 
-
-    public void SetupPlayer(Context context, int frameCount){
-
-
-
-    }
     public Player(Context context, float x, float y) {
         onPlatform=false;
 
         this.position.x = x;
         this.position.y = y;
 
-        this.velocity.y=-50.0f;
-        this.gravity.y= -7.5f;
+        this.velocity.y = -75.0f;
+        this.gravity.y = -12.5f;
 
-
-        jumpForce = (velocity.y*4);
         playerPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
         playerPaint.setColor(Color.GREEN);
         //this.speedY = 5; // Adjust player speed as needed
+
+        jumpForce = (velocity.y * 4);
         this.jumpHeight=200;
         this.isJumping=true;
+
         //SetupPlayer(context,4);
         this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.run);
         this.playerBitmap = Bitmap.createScaledBitmap(playerBitmap,frameW,
@@ -96,12 +91,10 @@ public class Player {
         playerRect.offsetTo((int)this.position.x,(int)this.position.y);
     }
 
-    public void draw(Canvas canvas) {
-
-
+    public void draw(Canvas canvas)
+    {
         //playerPaint.setColor(Color.GREEN);
         canvas.drawRect(playerRect, playerPaint);
-
         canvas.drawBitmap(playerBitmap,this.position.x,this.position.y,null);
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);

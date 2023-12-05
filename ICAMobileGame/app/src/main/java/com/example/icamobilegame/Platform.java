@@ -21,7 +21,8 @@ public class Platform {
 
     Paint collisionColour = new Paint();
 
-    public Platform(Context context, int x, int y,int screenH, int screenW) {
+    public Platform(Context context, int x, int y,int screenH, int screenW)
+    {
 
         this.pos.x = x;
         this.pos.y = y;
@@ -63,7 +64,9 @@ public class Platform {
         if(Rect.intersects(player.getPlayerRect(),this.rect))
         {
             System.out.println("Collision Happened");
-            player.onPlatform=true;
+            player.Jump();
+            //player.onPlatform=true;
+            //player.isJumping=false;
 
         }else{
 
