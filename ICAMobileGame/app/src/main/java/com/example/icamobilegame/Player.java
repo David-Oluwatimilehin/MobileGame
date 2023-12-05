@@ -12,16 +12,21 @@ import android.graphics.RectF;
 public class Player {
     private Bitmap playerBitmap;
 
-    private int jumpHeight;
-    protected int x, y;
-    private int speedY;
-    private int frameW=117,frameH=135;
+    private final int jumpHeight;
 
-    private Rect playerRect;
-    private RectF dstRect;
+    public float jumpForce;
+    public Vector2D position=new Vector2D();
+    public Vector2D velocity = new Vector2D();
+    public Vector2D gravity=new Vector2D();
+    private final int frameW=117;
+    public final int frameH=135;
 
-    private Paint playerPaint;
-    public boolean isMoving;
+    private final Rect playerRect;
+    private final RectF dstRect;
+
+    private final Paint playerPaint;
+    public boolean isJumping;
+    public boolean onPlatform;
 
 
     public void SetupPlayer(Context context, int frameCount){
@@ -29,27 +34,38 @@ public class Player {
 
 
     }
-    public Player(Context context, int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Player(Context context, float x, float y) {
+        onPlatform=false;
 
+        this.position.x = x;
+        this.position.y = y;
+
+        this.velocity.y=-50.0f;
+        this.gravity.y= -7.5f;
+
+
+        jumpForce = (velocity.y*4);
         playerPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
-        playerPaint.setColor(Color.CYAN);
-        this.speedY = 5; // Adjust player speed as needed
+        playerPaint.setColor(Color.GREEN);
+        //this.speedY = 5; // Adjust player speed as needed
         this.jumpHeight=200;
-        this.isMoving=true;
+        this.isJumping=true;
         //SetupPlayer(context,4);
         this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.run);
         this.playerBitmap = Bitmap.createScaledBitmap(playerBitmap,frameW,
                 frameH,false);
-        dstRect= new RectF(new RectF(x, y, x*frameW,0));
+        dstRect= new RectF(new RectF(this.position.x, this.position.y,
+                this.position.x*frameW,0));
 
         playerRect= new Rect(0,0,frameW,frameH);
-        playerRect.offsetTo(x,y);
+        //playerRect.offsetTo((int)this.position.x,(int)this.position.y);
     }
 
     public void Jump(){
-        y-= jumpHeight;
+
+        position=Vector2D.add(position,jumpForce);
+
+        this.isJumping=false;
     }
     public void Animate(int currFrame){
         // TODO: Fix This
@@ -57,19 +73,36 @@ public class Player {
         playerRect.right= playerRect.left + frameW;
     }
 
-    public void update() {
+    private void ApplyGravity(){
 
-        if(isMoving){
-            y += speedY;
+        if(!onPlatform)
+        {
+            position=Vector2D.subtract(position,gravity);
         }
 
-        playerRect.offsetTo(x,y);
+
+    }
+
+
+    public void update() {
+        //System.out.println("X: "+position.x+"Y: "+position.y);
+        if(!isJumping){
+
+            //position=Vector2D.add(position,Vector2D.scalar(velocity,dt));
+            ApplyGravity();
+            //Animate();
+        }
+
+        playerRect.offsetTo((int)this.position.x,(int)this.position.y);
     }
 
     public void draw(Canvas canvas) {
 
+
+        //playerPaint.setColor(Color.GREEN);
         canvas.drawRect(playerRect, playerPaint);
-        canvas.drawBitmap(playerBitmap,x,y,null);
+
+        canvas.drawBitmap(playerBitmap,this.position.x,this.position.y,null);
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);
 

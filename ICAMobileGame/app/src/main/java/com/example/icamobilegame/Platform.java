@@ -15,20 +15,21 @@ import java.util.Random;
 public class Platform {
 
     private Bitmap bitmap;
-    private int x, y;
+    private Vector2D pos=new Vector2D();
     private Rect rect;
     private Paint myPaint;
 
+    Paint collisionColour = new Paint();
 
     public Platform(Context context, int x, int y,int screenH, int screenW) {
 
-        this.x = x;
-        this.y = y;
+        this.pos.x = x;
+        this.pos.y = y;
 
         myPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
         myPaint.setColor(Color.BLUE);
 
-
+        collisionColour.setColor(Color.RED);
 
         int rand= (int) (Math.random() * 3) +1;
         switch(rand){
@@ -49,7 +50,7 @@ public class Platform {
         }
 
         rect = new Rect(0,0,bitmap.getWidth(), bitmap.getHeight());
-        rect.offsetTo(x,y);
+        rect.offsetTo((int)this.pos.x,(int)this.pos.y);
         //rect.set(x,y,0,0);
         System.out.println("Rect: "+ rect);
 
@@ -58,13 +59,17 @@ public class Platform {
 
 
     public void CollisionCheck(Player player){
-        if (this.rect.intersect(player.getPlayerRect()))
+
+        if(Rect.intersects(player.getPlayerRect(),this.rect))
         {
+            System.out.println("Collision Happened");
+            player.onPlatform=true;
 
-            player.isMoving = false;
+        }else{
 
+            System.out.println("Collision Not Happened");
         }
-        //player.isMoving = true;//System.out.println("Collision not Happening");
+
     }
 
 
@@ -72,7 +77,7 @@ public class Platform {
 
         canvas.drawRect(rect,myPaint);
 
-        canvas.drawBitmap(bitmap, x, y, null);
+        canvas.drawBitmap(bitmap, this.pos.x, this.pos.y, null);
 
 
     }
