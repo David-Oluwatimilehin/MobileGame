@@ -63,14 +63,14 @@ public class Platform {
 
         if(Rect.intersects(player.getPlayerRect(),this.rect))
         {
-            System.out.println("Collision Happened");
+            //System.out.println("Collision Happened");
             player.Jump();
             //player.onPlatform=true;
             //player.isJumping=false;
 
         }else{
 
-            System.out.println("Collision Not Happened");
+            //System.out.println("Collision Not Happened");
         }
 
     }

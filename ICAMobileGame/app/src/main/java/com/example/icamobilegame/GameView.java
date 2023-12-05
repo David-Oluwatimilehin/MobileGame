@@ -7,6 +7,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.DisplayMetrics;
@@ -21,6 +25,9 @@ public class GameView extends SurfaceView implements Runnable
     private Bitmap background;
     private Canvas canvas;
     private Thread gameThread;
+    private SensorManager manager;
+    private Sensor sensor;
+    private SensorEventListener listener;
     private Context privContext;
     private MediaPlayer mediaPlayer;
     private DisplayMetrics display=new DisplayMetrics();
@@ -77,6 +84,11 @@ public class GameView extends SurfaceView implements Runnable
     public void pause()
     {
         playing=false;
+
+        if(sensor != null)
+        {
+            manager.unregisterListener(listener);
+        }
         mediaPlayer.pause();
         try{
             gameThread.join();
@@ -88,6 +100,10 @@ public class GameView extends SurfaceView implements Runnable
     {
         playing=true;
         mediaPlayer.start();
+
+        if(sensor != null){
+            manager.registerListener(listener,sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
         gameThread= new Thread(this);
         gameThread.start();
     }
@@ -117,20 +133,19 @@ public class GameView extends SurfaceView implements Runnable
 
     }
 
-    public void HandleInput()
-    {
-
-    }
 
     public GameView(Context context, DisplayMetrics dis)
     {
         super(context);
         privContext=context.getApplicationContext();
+        surfaceHolder = getHolder();
         mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
 
-        previousTime=0;
-        currentTime=0;
-        deltaTime=0;
+        //listener
+        manager= (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        sensor=manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+        boolean success;
+
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
 
@@ -141,7 +156,7 @@ public class GameView extends SurfaceView implements Runnable
         //player.SetupPlayer(context,4);
         //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
-        surfaceHolder = getHolder();
+
         background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
         background= Bitmap.createScaledBitmap(background,screenWidth,
                 screenHeight,false);
@@ -160,8 +175,7 @@ public class GameView extends SurfaceView implements Runnable
 
 
 
-    public void draw()
-    {
+    public void draw() {
         if(surfaceHolder.getSurface().isValid())
         {
             canvas= surfaceHolder.lockCanvas();
@@ -191,9 +205,6 @@ public class GameView extends SurfaceView implements Runnable
     private void update()
     {
 
-        currentTime=System.currentTimeMillis();
-        deltaTime =(currentTime-previousTime) / 1000.0f;
-
         if(isMoving)
         {
 
@@ -217,7 +228,7 @@ public class GameView extends SurfaceView implements Runnable
                 playerPos.y = 10;
             }*/
         }
-        previousTime=currentTime;
+        //previousTime=currentTime;
     }
 
     public void manageCurrentFrame()
