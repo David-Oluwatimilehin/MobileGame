@@ -58,6 +58,9 @@ public class Vector2D {
     public static Vector2D scalar(Vector2D vector,float scalar){
         return new Vector2D(vector.x*scalar, vector.y*scalar);
     }
+    public static Vector2D scalar(float scalar,Vector2D vector){
+        return new Vector2D(vector.x*scalar, vector.y);
+    }
 
     public static float DotProduct(Vector2D lhs, Vector2D rhs){
         return lhs.x*rhs.x+lhs.y*rhs.y;

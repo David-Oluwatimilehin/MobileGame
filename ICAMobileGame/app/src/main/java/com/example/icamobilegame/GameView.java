@@ -1,5 +1,7 @@
 package com.example.icamobilegame;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,9 +16,11 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
 
 public class GameView extends SurfaceView implements Runnable
 {
@@ -26,8 +30,10 @@ public class GameView extends SurfaceView implements Runnable
     private Canvas canvas;
     private Thread gameThread;
     private SensorManager manager;
+    private float gravity[]= new float[3];
+    private float[] linear_acceleration= new float[3];
     private Sensor sensor;
-    private SensorEventListener listener;
+
     private Context privContext;
     private MediaPlayer mediaPlayer;
     private DisplayMetrics display=new DisplayMetrics();
@@ -79,8 +85,33 @@ public class GameView extends SurfaceView implements Runnable
             new RectF((float)playerSpawnPoint.x, (float)playerSpawnPoint.y, (float) playerSpawnPoint.x+ frameW, frameH);
 
 
-    private RectF whereToDrawBackgorund;
 
+    private RectF whereToDrawBackgorund;
+    private SensorEventListener listener= new SensorEventListener() {
+    public void onSensorChanged(SensorEvent event) {
+        float xAxis = event.values[0];
+        float yAxis = event.values[1];
+        float zAxis = event.values[2];
+
+        final float alpha = 0.8f;
+
+        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+
+        linear_acceleration[0] = event.values[0] - gravity[0];
+        linear_acceleration[1] = event.values[1] - gravity[1];
+        linear_acceleration[2] = event.values[2] - gravity[2];
+        //Log.d(TAG, "onSensorChanged: X:"+linear_acceleration[0]+" Y:"+linear_acceleration[1]+" Z:"+linear_acceleration[2]);
+
+        player.position.x=+player.velocity.x*event.values[0]*2;
+    }
+
+    public void onAccuracyChanged(Sensor s, int i) {
+
+    }
+};
     public void pause()
     {
         playing=false;
@@ -134,6 +165,11 @@ public class GameView extends SurfaceView implements Runnable
     }
 
 
+    public void setupGravity(){
+        gravity[0]=9.81f;
+        gravity[1]=9.81f;
+        gravity[2]=9.81f;
+    }
     public GameView(Context context, DisplayMetrics dis)
     {
         super(context);
@@ -141,10 +177,18 @@ public class GameView extends SurfaceView implements Runnable
         surfaceHolder = getHolder();
         mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
 
+        setupGravity();
         //listener
-        manager= (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        sensor=manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-        boolean success;
+        Log.d(TAG, "GameView: Sensor Manager Initialization");
+        manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        boolean hasAccel =manager.getSensorList(Sensor.TYPE_ACCELEROMETER).size()> 0;
+
+        if(hasAccel){
+            sensor = manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+            manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, "GameView: Sensor Successfully Added");
+        }
+        
 
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
@@ -158,7 +202,7 @@ public class GameView extends SurfaceView implements Runnable
 
 
         background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
-        background= Bitmap.createScaledBitmap(background,screenWidth,
+        background = Bitmap.createScaledBitmap(background,screenWidth,
                 screenHeight,false);
 
         /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);

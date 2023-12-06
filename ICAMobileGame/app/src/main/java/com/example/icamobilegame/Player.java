@@ -34,7 +34,8 @@ public class Player {
         this.position.x = x;
         this.position.y = y;
 
-        this.velocity.y = -75.0f;
+        this.velocity.x =75.0f;
+        this.velocity.y = -100.0f;
         this.gravity.y = -12.5f;
 
         playerPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
