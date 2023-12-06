@@ -2,6 +2,7 @@ package com.example.icamobilegame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -17,30 +18,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        startButton=findViewById(R.id.button);
 
-            if(StartButtonPressed){
-                gameView= new GameView(this, display);
-                setContentView(gameView);
-            }
-            startButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    Log.d("MainActivity","Game Started :) ");
-                    StartButtonPressed=true;
-
-                }
-
-
-            });
-
-
-
-
-
-
+        getWindowManager().getDefaultDisplay().getMetrics(display);
+        gameView= new GameView(this, display);
+        setContentView(gameView);
 
 
     }
@@ -50,21 +31,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
-        //gameView.resume();
+        gameView.resume();
 
     }
     protected void onPause(){
         super.onPause();
 
-        //gameView.pause();
+        gameView.pause();
 
     }
+    @Override
+    protected void onRestart() {
 
+        super.onRestart();
+
+
+    }
     @Override
     protected void onStop() {
         super.onStop();
 
-        //gameView.stop();
+        gameView.stop();
 
 
     }

@@ -44,7 +44,7 @@ public class GameView extends SurfaceView implements Runnable
     private int frameLengthInMS=100;
     private int frameW = 115, frameH = 137;
 
-    private Vector2D playerSpawnPoint= new Vector2D(500,900);
+    private Vector2D playerSpawnPoint= new Vector2D(500,300);
 
     private float jumpTime=1.0f;
     float jumpHeight = 10.0f;
@@ -58,7 +58,7 @@ public class GameView extends SurfaceView implements Runnable
     private PlatformManager platformManager;
     private Player player;
 
-    //private float velocity=250;
+
     private int frameCount=4;
     private int currentFrame;
 
@@ -68,13 +68,6 @@ public class GameView extends SurfaceView implements Runnable
     private long lastFrameChangeTime=0;
 
 
-    private float currentTime;
-    private float previousTime;
-    private float deltaTime;
-
-
-    private boolean jumpPressed=false;
-    private boolean isJumping;
     private boolean  isMoving=true;
     private volatile boolean playing;
 
@@ -105,7 +98,10 @@ public class GameView extends SurfaceView implements Runnable
         linear_acceleration[2] = event.values[2] - gravity[2];
         //Log.d(TAG, "onSensorChanged: X:"+linear_acceleration[0]+" Y:"+linear_acceleration[1]+" Z:"+linear_acceleration[2]);
 
-        player.position.x=+player.velocity.x*event.values[0]*2;
+        if(playing){
+            player.position.x=+player.velocity.x*linear_acceleration[0]*2;
+        }
+
     }
 
     public void onAccuracyChanged(Sensor s, int i) {
@@ -121,6 +117,7 @@ public class GameView extends SurfaceView implements Runnable
             manager.unregisterListener(listener);
         }
         mediaPlayer.pause();
+
         try{
             gameThread.join();
         }catch(InterruptedException ie){
@@ -141,6 +138,9 @@ public class GameView extends SurfaceView implements Runnable
     @Override
     public void run()
     {
+        if(!playing){
+            player.position=playerSpawnPoint;
+        }
         while(playing)
         {
             long startFrameTime= System.currentTimeMillis();
@@ -214,6 +214,7 @@ public class GameView extends SurfaceView implements Runnable
 
     public void stop()
     {
+
         mediaPlayer.release();
     }
 

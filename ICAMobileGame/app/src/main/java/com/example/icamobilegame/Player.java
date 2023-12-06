@@ -81,12 +81,12 @@ public class Player {
 
 
     public void update() {
-        //System.out.println("X: "+position.x+"Y: "+position.y);
+        System.out.println("X: "+position.x+"Y: "+position.y);
         if(!isJumping){
 
             //position=Vector2D.add(position,Vector2D.scalar(velocity,dt));
             ApplyGravity();
-            //Animate();
+
         }
 
         playerRect.offsetTo((int)this.position.x,(int)this.position.y);
@@ -96,7 +96,7 @@ public class Player {
     {
         //playerPaint.setColor(Color.GREEN);
         canvas.drawRect(playerRect, playerPaint);
-        canvas.drawBitmap(playerBitmap,this.position.x,this.position.y,null);
+        canvas.drawBitmap(playerBitmap, this.position.x, this.position.y,null);
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);
 
