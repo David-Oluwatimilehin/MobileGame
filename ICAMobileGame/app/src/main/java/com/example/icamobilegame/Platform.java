@@ -15,7 +15,7 @@ import java.util.Random;
 public class Platform {
 
     private Bitmap bitmap;
-    private Vector2D pos=new Vector2D();
+    public Vector2D pos=new Vector2D();
     private Rect rect;
     private Paint myPaint;
 

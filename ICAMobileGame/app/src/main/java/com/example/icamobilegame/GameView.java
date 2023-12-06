@@ -193,7 +193,7 @@ public class GameView extends SurfaceView implements Runnable
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
 
-        platformManager= new PlatformManager();
+        platformManager= new PlatformManager(10);
         platformManager.SetPlatforms(context);
 
         player= new Player(context,playerSpawnPoint.x, playerSpawnPoint.y);
@@ -252,18 +252,11 @@ public class GameView extends SurfaceView implements Runnable
 
         if(isMoving)
         {
-
+            platformManager.ResetPlatforms(player,950);
             platformManager.PlatformCollisionCheck(player);
 
             player.update();
-
-            //HandleInput();
-
-            /*playerPos.Add(playerVel);
-            //playerVel.Divide(playerVel,fps);
-            playerPos.x = (float)playerPos.x + playerVel.x / fps;
-
-            if (playerPos.x > getWidth())
+            /*if (playerPos.x > getWidth())
             {
                 playerPos.y += frameH;
                 playerPos.x = 10;

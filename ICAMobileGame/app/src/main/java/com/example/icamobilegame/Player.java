@@ -1,5 +1,7 @@
 package com.example.icamobilegame;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 public class Player {
     private Bitmap playerBitmap;
@@ -81,7 +84,7 @@ public class Player {
 
 
     public void update() {
-        System.out.println("X: "+position.x+"Y: "+position.y);
+        Log.d(TAG, "update: X:"+position.x+"Y: "+position.y);
         if(!isJumping){
 
             //position=Vector2D.add(position,Vector2D.scalar(velocity,dt));
