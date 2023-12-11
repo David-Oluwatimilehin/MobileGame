@@ -23,8 +23,11 @@ public class Player {
     public Vector2D position=new Vector2D();
     public Vector2D velocity = new Vector2D();
     public Vector2D gravity=new Vector2D();
-    private final int frameW=117;
-    public final int frameH=135;
+    private final int frameW=128;
+    public final int frameH=128;
+    private int animTick;
+    private int animSpeed;
+    private int playerAnimX=2,playerAnimY;
 
     private Rect playerRect;
     private RectF dstRect;
@@ -40,6 +43,7 @@ public class Player {
         this.position.x = x;
         this.position.y = y;
 
+        this.animSpeed=10;
         this.velocity.x =75.0f;
         this.velocity.y = -100.0f;
         this.gravity.y = -12.5f;
@@ -57,7 +61,7 @@ public class Player {
             for(int i=0; i<sprites[j].length; i++) {
                 int currentPosX= i*128;
                 int currentPosY= j*128;
-                sprites[j][i]= getScaledBitmap(Bitmap.createBitmap(playerBitmap,currentPosX,currentPosY,128,128));
+                sprites[j][i]= getScaledBitmap(Bitmap.createBitmap(playerBitmap,currentPosX,currentPosY,frameW,frameH));
             }
 
 
@@ -74,12 +78,18 @@ public class Player {
 
         this.isJumping=false;
     }
-    public void Animate(int currFrame){
+    public void Animate(int currFrame) {
         // TODO: Fix This
-        playerRect.left= currFrame * frameW;
-        playerRect.right= playerRect.left + frameW;
-    }
+        animTick++;
+        if (animTick >= animSpeed) {
+            animTick=0;
+            playerAnimY++;
 
+            if(playerAnimY>=4){
+                playerAnimY=0;
+            }
+        }
+    }
     private void ApplyGravity(){
 
         if(!onPlatform)
@@ -107,7 +117,8 @@ public class Player {
     {
         //playerPaint.setColor(Color.GREEN);
         canvas.drawRect(playerRect, playerPaint);
-        canvas.drawBitmap(getSprites(0,0), this.position.x, this.position.y,null);
+        canvas.drawBitmap(getSprites(playerAnimY,playerAnimX), this.position.x, this.position.y,null);
+        Animate(0);
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);
 
