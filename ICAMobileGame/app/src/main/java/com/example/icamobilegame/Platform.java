@@ -53,7 +53,7 @@ public class Platform {
         rect = new Rect(0,0,bitmap.getWidth(), bitmap.getHeight());
         rect.offsetTo((int)this.pos.x,(int)this.pos.y);
         //rect.set(x,y,0,0);
-        System.out.println("Rect: "+ rect);
+        //System.out.println("Rect: "+ rect);
 
     }
 
@@ -78,8 +78,8 @@ public class Platform {
 
     public void draw(Canvas canvas) {
 
+        //rect.offsetTo((int)this.pos.x,(int)this.pos.y);
         canvas.drawRect(rect,myPaint);
-
         canvas.drawBitmap(bitmap, this.pos.x, this.pos.y, null);
 
 

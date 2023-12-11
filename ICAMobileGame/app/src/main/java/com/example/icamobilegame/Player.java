@@ -14,8 +14,10 @@ import android.util.Log;
 
 public class Player {
     private Bitmap playerBitmap;
+    private Bitmap [][] sprites= new Bitmap[4][4];
+    private BitmapFactory.Options options= new BitmapFactory.Options();
 
-    private final int jumpHeight;
+    private int jumpHeight;
 
     public float jumpForce;
     public Vector2D position=new Vector2D();
@@ -24,14 +26,15 @@ public class Player {
     private final int frameW=117;
     public final int frameH=135;
 
-    private final Rect playerRect;
-    private final RectF dstRect;
+    private Rect playerRect;
+    private RectF dstRect;
 
-    private final Paint playerPaint;
+    private Paint playerPaint;
     public boolean isJumping;
     public boolean onPlatform;
 
     public Player(Context context, float x, float y) {
+        options.inScaled=false;
         onPlatform=false;
 
         this.position.x = x;
@@ -49,10 +52,15 @@ public class Player {
         this.jumpHeight=200;
         this.isJumping=true;
 
-        //SetupPlayer(context,4);
-        this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.run);
-        this.playerBitmap = Bitmap.createScaledBitmap(playerBitmap,frameW,
-                frameH,false);
+        this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.dante,options);
+        for(int j=0; j<sprites.length; j++)
+            for(int i=0; i<sprites[j].length; i++) {
+                int currentPosX= i*128;
+                int currentPosY= j*128;
+                sprites[j][i]= getScaledBitmap(Bitmap.createBitmap(playerBitmap,currentPosX,currentPosY,128,128));
+            }
+
+
         dstRect= new RectF(new RectF(this.position.x, this.position.y,
                 this.position.x*frameW,0));
 
@@ -99,12 +107,17 @@ public class Player {
     {
         //playerPaint.setColor(Color.GREEN);
         canvas.drawRect(playerRect, playerPaint);
-        canvas.drawBitmap(playerBitmap, this.position.x, this.position.y,null);
+        canvas.drawBitmap(getSprites(0,0), this.position.x, this.position.y,null);
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);
 
     }
-
+    private Bitmap getScaledBitmap(Bitmap bitmap){
+        return Bitmap.createScaledBitmap(bitmap,bitmap.getWidth(),bitmap.getHeight(),false);
+    }
+    private Bitmap getSprites(int PosX,int PosY){
+        return sprites[PosX][PosY];
+    }
     public Rect getPlayerRect() {
         return playerRect;
     }

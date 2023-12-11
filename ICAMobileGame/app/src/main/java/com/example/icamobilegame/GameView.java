@@ -44,7 +44,7 @@ public class GameView extends SurfaceView implements Runnable
     private int frameLengthInMS=100;
     private int frameW = 115, frameH = 137;
 
-    private Vector2D playerSpawnPoint= new Vector2D(500,300);
+    private Vector2D playerSpawnPoint= new Vector2D(400,450);
 
     private float jumpTime=1.0f;
     float jumpHeight = 10.0f;
@@ -99,7 +99,10 @@ public class GameView extends SurfaceView implements Runnable
         //Log.d(TAG, "onSensorChanged: X:"+linear_acceleration[0]+" Y:"+linear_acceleration[1]+" Z:"+linear_acceleration[2]);
 
         if(playing){
-            player.position.x=+player.velocity.x*linear_acceleration[0]*2;
+            if(xAxis<=-10||xAxis>=10){
+                player.position.x=+player.velocity.x+linear_acceleration[0]*2;
+            }
+
         }
 
     }
@@ -234,11 +237,6 @@ public class GameView extends SurfaceView implements Runnable
 
             //canvas.drawText();
             manageCurrentFrame();
-
-
-
-
-
 
             //canvas.drawBitmap(bitmap,frameToDraw,
                     //whereToDraw,null);
