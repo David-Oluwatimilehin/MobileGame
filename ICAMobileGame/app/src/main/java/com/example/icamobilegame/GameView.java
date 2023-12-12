@@ -40,6 +40,7 @@ public class GameView extends SurfaceView implements Runnable
 
     int screenHeight;
     int screenWidth;
+    float canvasTranslateY;
 
     private int frameLengthInMS=100;
     private int frameW = 115, frameH = 137;
@@ -97,7 +98,13 @@ public class GameView extends SurfaceView implements Runnable
         //Log.d(TAG, "onSensorChanged: X:"+linear_acceleration[0]+" Y:"+linear_acceleration[1]+" Z:"+linear_acceleration[2]);
 
         if(playing){
-            player.position.x+=player.velocity.x+linear_acceleration[0];
+
+            if(xAxis>2)
+            {
+                player.position=player.moveLeft(linear_acceleration[0]);
+            }if(xAxis<-2){
+                player.position=player.moveRight(-linear_acceleration[0]);
+            }
 
 
         }
@@ -181,16 +188,17 @@ public class GameView extends SurfaceView implements Runnable
         surfaceHolder = getHolder();
         mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
 
-        setupGravity();
+        canvasTranslateY=0;
+
         //listener
-        Log.d(TAG, "GameView: Sensor Manager Initialization");
+        //Log.d(TAG, "GameView: Sensor Manager Initialization");
         manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         boolean hasAccel =manager.getSensorList(Sensor.TYPE_ACCELEROMETER).size()> 0;
 
         if(hasAccel){
             sensor = manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
             manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(TAG, "GameView: Sensor Successfully Added");
+            //Log.d(TAG, "GameView: Sensor Successfully Added");
         }
 
         screenHeight=dis.heightPixels;
@@ -227,6 +235,8 @@ public class GameView extends SurfaceView implements Runnable
         {
             canvas= surfaceHolder.lockCanvas();
             canvas.drawColor(Color.WHITE);
+
+            canvas.translate(0,canvasTranslateY);
             //canvas.setBitmap();
             /*whereToDraw.set((float)playerPos.x,(float)playerPos.y,
                     (float)playerPos.x+frameW, (float)playerPos.y+frameH);*/
@@ -280,7 +290,9 @@ public class GameView extends SurfaceView implements Runnable
         {
             case MotionEvent.ACTION_DOWN:
                 player.isJumping=true;
+
                 player.Jump((float)delta);
+                canvasTranslateY -= player.velocity.y;
 
                 //System.out.println(jumpPressed);
         }

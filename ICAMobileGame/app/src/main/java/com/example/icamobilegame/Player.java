@@ -1,7 +1,5 @@
 package com.example.icamobilegame;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 
 public class Player {
     private Bitmap playerBitmap;
@@ -72,6 +69,14 @@ public class Player {
         //playerRect.offsetTo((int)this.position.x,(int)this.position.y);
     }
 
+    public Vector2D moveLeft(float lin){
+        this.position.x-= velocity.x*lin*2;
+        return position;
+    }
+    public Vector2D moveRight(float lin){
+        this.position.x += velocity.x*lin*2;
+        return position;
+    }
     public void Jump(float dt){
 
         position=Vector2D.add(position,jumpForce);
