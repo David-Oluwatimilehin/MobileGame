@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class Player {
     private Bitmap playerBitmap;
-    private Bitmap [][] sprites= new Bitmap[4][4];
+    private Bitmap [][] sprites= new Bitmap[5][4];
     private BitmapFactory.Options options= new BitmapFactory.Options();
 
     private int jumpHeight;
@@ -43,10 +43,10 @@ public class Player {
         this.position.x = x;
         this.position.y = y;
 
-        this.animSpeed=10;
-        this.velocity.x =75.0f;
-        this.velocity.y = -100.0f;
-        this.gravity.y = -12.5f;
+        this.animSpeed = 60;
+        this.velocity.x = 50.0f;
+        this.velocity.y = -50.0f;
+        this.gravity.y = -9.81f;
 
         playerPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
         playerPaint.setColor(Color.GREEN);
@@ -72,42 +72,47 @@ public class Player {
         //playerRect.offsetTo((int)this.position.x,(int)this.position.y);
     }
 
-    public void Jump(){
+    public void Jump(float dt){
 
         position=Vector2D.add(position,jumpForce);
 
         this.isJumping=false;
     }
-    public void Animate(int currFrame) {
+    public void Animate() {
         // TODO: Fix This
         animTick++;
+
         if (animTick >= animSpeed) {
             animTick=0;
             playerAnimY++;
-
-            if(playerAnimY>=4){
+            if(playerAnimY>=5) {
                 playerAnimY=0;
             }
         }
     }
-    private void ApplyGravity(){
+    private void ApplyGravity(double deltaTimeSec){
 
         if(!onPlatform)
         {
-            position=Vector2D.subtract(position,gravity);
+            position.y=Vector2D.subtract(position,gravity.y);
         }
 
 
     }
 
 
-    public void update() {
-        Log.d(TAG, "update: X:"+position.x+"Y: "+position.y);
+    public void update(double deltaTime, float screenWidth) {
+        //Log.d(TAG, "update: X:"+position.x+"Y: "+position.y);
         if(!isJumping){
 
             //position=Vector2D.add(position,Vector2D.scalar(velocity,dt));
-            ApplyGravity();
+            ApplyGravity(deltaTime);
 
+            if (position.x < 0) {
+                position.x = screenWidth; // Wrap to the right side
+            } else if (position.x > screenWidth) {
+                position.x = 0; // Wrap to the left side
+            }
         }
 
         playerRect.offsetTo((int)this.position.x,(int)this.position.y);
@@ -118,7 +123,7 @@ public class Player {
         //playerPaint.setColor(Color.GREEN);
         canvas.drawRect(playerRect, playerPaint);
         canvas.drawBitmap(getSprites(playerAnimY,playerAnimX), this.position.x, this.position.y,null);
-        Animate(0);
+        Animate();
         // TODO: Fix Animation
         //canvas.drawBitmap(playerBitmap, playerRect, dstRect,null);
 

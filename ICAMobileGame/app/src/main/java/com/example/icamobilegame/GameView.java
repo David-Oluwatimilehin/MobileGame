@@ -57,13 +57,11 @@ public class GameView extends SurfaceView implements Runnable
 
     private PlatformManager platformManager;
     private Player player;
-
+    private double delta;
 
     private int frameCount=4;
     private int currentFrame;
 
-
-    private long fps;
     private long timeThisFrame=100;
     private long lastFrameChangeTime=0;
 
@@ -99,9 +97,8 @@ public class GameView extends SurfaceView implements Runnable
         //Log.d(TAG, "onSensorChanged: X:"+linear_acceleration[0]+" Y:"+linear_acceleration[1]+" Z:"+linear_acceleration[2]);
 
         if(playing){
-            if(xAxis<=-10||xAxis>=10){
-                player.position.x=+player.velocity.x+linear_acceleration[0]*2;
-            }
+            player.position.x+=player.velocity.x+linear_acceleration[0];
+
 
         }
 
@@ -141,31 +138,35 @@ public class GameView extends SurfaceView implements Runnable
     @Override
     public void run()
     {
+        long lastFPSCheck=System.currentTimeMillis();
+        int fps = 0;
+
+        long lastDelta=System.nanoTime();
+        long nanoSec= 1_000_000_000;
         if(!playing){
             player.position=playerSpawnPoint;
         }
         while(playing)
         {
-            long startFrameTime= System.currentTimeMillis();
-            //PrintMsg();
-            update();
+            long nowDelta= System.nanoTime();
+            long timeSinceLastDelta= nowDelta-lastDelta;
+            delta = timeSinceLastDelta / nanoSec;
+
+            update(delta);
             draw();
-            GetFPS(startFrameTime);
+            fps++;
+            long now= System.currentTimeMillis();
+            if(now-lastFPSCheck >= 1000){
+                Log.d(TAG, "FPS: "+ fps +" "+System.currentTimeMillis());
+                fps = 0;
+                lastFPSCheck += 1000;
+            }
+
+
         }
 
     }
-    public float GetFPS(long beginFrameTime){
 
-        timeThisFrame= System.currentTimeMillis()-beginFrameTime;
-
-        if(timeThisFrame >= 1)
-        {
-            fps= 1000 / timeThisFrame;
-        }
-        //System.out.println(fps);
-        return fps;
-
-    }
 
 
     public void setupGravity(){
@@ -191,7 +192,6 @@ public class GameView extends SurfaceView implements Runnable
             manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(TAG, "GameView: Sensor Successfully Added");
         }
-        
 
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
@@ -207,7 +207,6 @@ public class GameView extends SurfaceView implements Runnable
         background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
         background = Bitmap.createScaledBitmap(background,screenWidth,
                 screenHeight,false);
-
         /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
         bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
                 frameH,false);*/
@@ -235,8 +234,7 @@ public class GameView extends SurfaceView implements Runnable
             platformManager.DrawPlatforms(canvas);
             player.draw(canvas);
 
-            //canvas.drawText();
-            manageCurrentFrame();
+
 
             //canvas.drawBitmap(bitmap,frameToDraw,
                     //whereToDraw,null);
@@ -245,26 +243,16 @@ public class GameView extends SurfaceView implements Runnable
     }
 
 
-    private void update()
+    private void update(double dt)
     {
 
-        if(isMoving)
-        {
-            platformManager.ResetPlatforms(player,950);
-            platformManager.PlatformCollisionCheck(player);
+        if(isMoving) {
+            //platformManager.ResetPlatforms(player, 950);
+            //platformManager.UpdatePlatforms(player);
+            platformManager.PlatformCollisionCheck(player,(float)dt);
 
-            player.update();
-            /*if (playerPos.x > getWidth())
-            {
-                playerPos.y += frameH;
-                playerPos.x = 10;
-            }
-            if (playerPos.y + frameH > getHeight())
-            {
-                playerPos.y = 10;
-            }*/
+            player.update(dt,screenWidth);
         }
-        //previousTime=currentTime;
     }
 
     public void manageCurrentFrame()
@@ -292,7 +280,7 @@ public class GameView extends SurfaceView implements Runnable
         {
             case MotionEvent.ACTION_DOWN:
                 player.isJumping=true;
-                player.Jump();
+                player.Jump((float)delta);
 
                 //System.out.println(jumpPressed);
         }

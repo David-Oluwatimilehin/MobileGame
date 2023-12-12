@@ -50,13 +50,18 @@ public class Vector2D {
         return this;
 
     }
+    public static float subtract(Vector2D lhs, float other){
+        lhs.y-=other;
+        return lhs.y;
+
+    }
     public static Vector2D subtract(Vector2D lhs, Vector2D rhs){
         return new Vector2D(lhs.x- rhs.x, lhs.y- rhs.y);
 
     }
 
     public static Vector2D scalar(Vector2D vector,float scalar){
-        return new Vector2D(vector.x*scalar, vector.y*scalar);
+        return new Vector2D(vector.x, vector.y*scalar);
     }
     public static Vector2D scalar(float scalar,Vector2D vector){
         return new Vector2D(vector.x*scalar, vector.y);

@@ -16,6 +16,7 @@ public class Platform {
 
     private Bitmap bitmap;
     public Vector2D pos=new Vector2D();
+    public int platWidth=140, platHeight=40;
     private Rect rect;
     private Paint myPaint;
 
@@ -36,17 +37,17 @@ public class Platform {
         switch(rand){
             case 1:
                 this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.greenplatform);
-                this.bitmap = Bitmap.createScaledBitmap(bitmap,160,40,false);
+                this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
                 break;
 
             case 2:
                 this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bluelatform);
-                this.bitmap = Bitmap.createScaledBitmap(bitmap,160,40,false);
+                this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
                 break;
 
             default:
                 this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.redplatform);
-                this.bitmap = Bitmap.createScaledBitmap(bitmap,160,40,false);
+                this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
                 break;
         }
 
@@ -56,15 +57,23 @@ public class Platform {
         //System.out.println("Rect: "+ rect);
 
     }
+    public void moveUp(Vector2D other){
+        this.pos.x+= other.x;
+        this.pos.y+= other.y;
+        rect.offsetTo((int)this.pos.x,(int)this.pos.y);
+    }
 
 
 
-    public void CollisionCheck(Player player){
+    public void CollisionCheck(Player player, float dt){
 
-        if(Rect.intersects(player.getPlayerRect(),this.rect))
+        if(rect.left <= player.getPlayerRect().right && player.getPlayerRect().left <= rect.right
+                && rect.top <= player.getPlayerRect().bottom && player.getPlayerRect().top <= rect.bottom)
+        //if(Rect.intersects(player.getPlayerRect(),this.rect))
         {
+
             //System.out.println("Collision Happened");
-            player.Jump();
+            player.Jump(dt);
             //player.onPlatform=true;
             //player.isJumping=false;
 
@@ -78,7 +87,7 @@ public class Platform {
 
     public void draw(Canvas canvas) {
 
-        //rect.offsetTo((int)this.pos.x,(int)this.pos.y);
+        rect.offsetTo((int)this.pos.x,(int)this.pos.y);
         canvas.drawRect(rect,myPaint);
         canvas.drawBitmap(bitmap, this.pos.x, this.pos.y, null);
 
