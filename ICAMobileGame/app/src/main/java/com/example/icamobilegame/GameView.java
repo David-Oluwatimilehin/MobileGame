@@ -58,15 +58,16 @@ public class GameView extends SurfaceView implements Runnable
     private Player player;
     private double delta;
 
-    private int frameCount=4;
+
     private int currentFrame;
     private int score;
     private Paint scoreTextColour;
-    private long timeThisFrame=100;
+
     private long lastFrameChangeTime=0;
 
 
-    private boolean  isMoving=true;
+    private boolean isMoving=true;
+    private boolean gameOver;
     private volatile boolean playing;
 
     private Rect frameToDraw =
@@ -183,13 +184,16 @@ public class GameView extends SurfaceView implements Runnable
     public GameView(Context context, DisplayMetrics dis)
     {
         super(context);
-        privContext=context.getApplicationContext();
+        privContext =context.getApplicationContext();
         surfaceHolder = getHolder();
-        mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
+        mediaPlayer = MediaPlayer.create(privContext, R.raw.badtheme);
+        gameOver = false;
 
-        score=0;
+        score = 0;
         scoreTextColour= new Paint(Paint.ANTI_ALIAS_FLAG);
+        scoreTextColour.setTextAlign(Paint.Align.CENTER);
         scoreTextColour.setColor(Color.WHITE);
+        scoreTextColour.setTextSize(48.0f);
 
         canvasTranslateY=0;
 
@@ -208,7 +212,7 @@ public class GameView extends SurfaceView implements Runnable
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
 
-        platformManager= new PlatformManager(10);
+        platformManager= new PlatformManager(10,screenWidth,screenHeight);
         platformManager.SetPlatforms(context);
 
         player= new Player(context,playerSpawnPoint.x, playerSpawnPoint.y);
@@ -239,7 +243,7 @@ public class GameView extends SurfaceView implements Runnable
         if(surfaceHolder.getSurface().isValid())
         {
             canvas= surfaceHolder.lockCanvas();
-            canvas.drawColor(Color.WHITE);
+            canvas.drawColor(Color.BLACK);
 
             canvas.drawBitmap(background,0,0,null);
             canvas.translate(0,canvasTranslateY);
@@ -248,10 +252,13 @@ public class GameView extends SurfaceView implements Runnable
 
             platformManager.DrawPlatforms(canvas);
             player.draw(canvas);
-            canvas.drawText("Score: "+score,12,12,scoreTextColour);
+            canvas.drawText("Score: "+score,screenWidth/2,64,scoreTextColour);
 
 
 
+            if(gameOver){
+                canvas.drawText("GAME OVER!",screenWidth/2,screenHeight/2,scoreTextColour);
+            }
             //canvas.drawBitmap(bitmap,frameToDraw,
                     //whereToDraw,null);
             surfaceHolder.unlockCanvasAndPost(canvas);
@@ -259,34 +266,15 @@ public class GameView extends SurfaceView implements Runnable
     }
 
 
-    private void update(double dt)
-    {
+    private void update(double dt) {
 
-        if(isMoving) {
+        if (isMoving) {
             //platformManager.ResetPlatforms(player, 950);
             //platformManager.UpdatePlatforms(player);
-            platformManager.PlatformCollisionCheck(player,(float)dt);
+            platformManager.PlatformCollisionCheck(player, (float) dt);
 
-            player.update(dt,screenWidth);
+            player.update(dt, screenWidth);
         }
-    }
-
-    public void manageCurrentFrame()
-    {
-        long time= System.currentTimeMillis();
-        if(isMoving)
-        {
-            if(time > lastFrameChangeTime + frameLengthInMS)
-            {
-                lastFrameChangeTime=time;
-                currentFrame++;
-            }
-            if(currentFrame>=frameCount)
-            {
-                currentFrame=0;
-            }
-        }
-        //player.Animate(currentFrame);
     }
 
     @Override

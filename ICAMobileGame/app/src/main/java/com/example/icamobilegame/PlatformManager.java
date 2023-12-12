@@ -13,27 +13,70 @@ public class PlatformManager {
     private Random rand;
     private Platform tempPlat;
     private int barCount;
+    private int screenHeight,screenWidth;
 
     int SpawnX;
     int SpawnY;
     float lastPlayerY;
 
-    public PlatformManager(int numOfPlatform){
+    int platformGenX=0;
+    int platformGenY=0;
+    int lastPlatformX=0;
+    int lastPlatformY=0;
+    float screenTopOffsetY=-100.0f;
+    public PlatformManager(int numOfPlatform, int sx,int sy){
         platformsList= new ArrayList<>();
         rand= new Random(90868);
         barCount=numOfPlatform;
+
+        screenWidth=sx;
+        screenHeight=sy;
+
+        platformGenX = screenWidth / 4;
+        platformGenY = screenHeight / 10;
+
+        lastPlatformX = 0;
+        lastPlatformY = screenHeight - 40;
     }
     void SetPlatforms(Context context)
     {
 
-        for(int i = 0; i < barCount; i++){
-            SpawnX= rand.nextInt(950);
-            SpawnY= rand.nextInt(1950+50);
+        while (platformsList.size() < barCount){
+            SpawnX= rand.nextInt((screenWidth-140));
+
+            if(lastPlatformY-platformGenY / 2 < screenTopOffsetY)
+                break;
+
+            SpawnY= lastPlatformY-rand.nextInt(platformGenY / 2 + platformGenY);
+
+            if(SpawnY<screenTopOffsetY)
+                continue;
+
+            if(SpawnX < lastPlatformX + platformGenX &&
+                    (lastPlatformX!=0 && SpawnX > lastPlatformX-platformGenX)) {
+                continue;
+            }
+
+            Platform platform = new Platform(context,SpawnX,SpawnY);
+
+            platformsList.add(platform);
+
+            lastPlatformX=SpawnX;
+            lastPlatformY=SpawnY;
+
+
+
+
+        }
+
+        /*for(int i = 0; i < barCount; i++){
+            //SpawnX= rand.nextInt(950);
+            //SpawnY= rand.nextInt(1950+50);
 
             tempPlat =new Platform(context,SpawnX,SpawnY,1950,950);
             this.platformsList.add(tempPlat);
 
-        }
+        }*/
     }
 
     void PlatformCollisionCheck(Player playerRef,float deltaTime){

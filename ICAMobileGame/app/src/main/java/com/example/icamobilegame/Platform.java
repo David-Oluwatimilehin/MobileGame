@@ -22,7 +22,7 @@ public class Platform {
 
     Paint collisionColour = new Paint();
 
-    public Platform(Context context, int x, int y,int screenH, int screenW)
+    public Platform(Context context, int x, int y)
     {
 
         this.pos.x = x;
