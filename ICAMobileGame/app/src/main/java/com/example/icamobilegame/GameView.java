@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Sensor;
@@ -25,7 +26,7 @@ import android.widget.TextView;
 public class GameView extends SurfaceView implements Runnable
 {
     private SurfaceHolder surfaceHolder;
-    private Bitmap bitmap;
+
     private Bitmap background;
     private Canvas canvas;
     private Thread gameThread;
@@ -52,9 +53,6 @@ public class GameView extends SurfaceView implements Runnable
     private float jumpForce=(jumpHeight*2.0f) / (jumpTime/2.0f);
     private double Gravity=(-2*jumpHeight)/ Math.pow(jumpTime/2.0f,2);
 
-    //private Vector2f playerVel = new Vector2f(0,0);
-
-
 
     private PlatformManager platformManager;
     private Player player;
@@ -62,7 +60,8 @@ public class GameView extends SurfaceView implements Runnable
 
     private int frameCount=4;
     private int currentFrame;
-
+    private int score;
+    private Paint scoreTextColour;
     private long timeThisFrame=100;
     private long lastFrameChangeTime=0;
 
@@ -188,6 +187,10 @@ public class GameView extends SurfaceView implements Runnable
         surfaceHolder = getHolder();
         mediaPlayer= MediaPlayer.create(privContext, R.raw.badtheme);
 
+        score=0;
+        scoreTextColour= new Paint(Paint.ANTI_ALIAS_FLAG);
+        scoreTextColour.setColor(Color.WHITE);
+
         canvasTranslateY=0;
 
         //listener
@@ -197,6 +200,7 @@ public class GameView extends SurfaceView implements Runnable
 
         if(hasAccel){
             sensor = manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+            //sensor = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD).get(0);
             manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             //Log.d(TAG, "GameView: Sensor Successfully Added");
         }
@@ -212,7 +216,7 @@ public class GameView extends SurfaceView implements Runnable
         //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
 
-        background = BitmapFactory.decodeResource(getResources(),R.drawable.background);
+        background = BitmapFactory.decodeResource(getResources(),R.drawable.img_background);
         background = Bitmap.createScaledBitmap(background,screenWidth,
                 screenHeight,false);
         /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
@@ -225,6 +229,7 @@ public class GameView extends SurfaceView implements Runnable
     public void stop()
     {
 
+        manager.unregisterListener(listener);
         mediaPlayer.release();
     }
 
@@ -236,13 +241,14 @@ public class GameView extends SurfaceView implements Runnable
             canvas= surfaceHolder.lockCanvas();
             canvas.drawColor(Color.WHITE);
 
+            canvas.drawBitmap(background,0,0,null);
             canvas.translate(0,canvasTranslateY);
-            //canvas.setBitmap();
-            /*whereToDraw.set((float)playerPos.x,(float)playerPos.y,
-                    (float)playerPos.x+frameW, (float)playerPos.y+frameH);*/
+
+
 
             platformManager.DrawPlatforms(canvas);
             player.draw(canvas);
+            canvas.drawText("Score: "+score,12,12,scoreTextColour);
 
 
 

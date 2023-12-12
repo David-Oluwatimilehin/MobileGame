@@ -49,7 +49,7 @@ public class Player {
         playerPaint.setColor(Color.GREEN);
         //this.speedY = 5; // Adjust player speed as needed
 
-        jumpForce = (velocity.y * 4);
+        jumpForce = (velocity.y * 6);
         this.jumpHeight=200;
         this.isJumping=true;
 
