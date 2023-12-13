@@ -14,10 +14,11 @@ import java.util.Random;
 
 public class Platform {
 
-    private Bitmap bitmap;
+    protected Bitmap bitmap;
+    protected int platWidth=140, platHeight=40;
+    protected Rect rect;
+    protected boolean remove;
     public Vector2D pos=new Vector2D();
-    public int platWidth=140, platHeight=40;
-    private Rect rect;
     private Paint myPaint;
 
     Paint collisionColour = new Paint();
@@ -33,20 +34,10 @@ public class Platform {
 
         collisionColour.setColor(Color.RED);
 
-        int rand= (int) (Math.random() * 3) +1;
+        int rand= 1;
         switch(rand){
             case 1:
                 this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.greenplatform);
-                this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
-                break;
-
-            case 2:
-                this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bluelatform);
-                this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
-                break;
-
-            default:
-                this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.redplatform);
                 this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
                 break;
         }
@@ -61,6 +52,10 @@ public class Platform {
         this.pos.x+= other.x;
         this.pos.y+= other.y;
         rect.offsetTo((int)this.pos.x,(int)this.pos.y);
+    }
+
+    public void Update(){
+
     }
 
 

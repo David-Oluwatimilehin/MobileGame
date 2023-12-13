@@ -55,6 +55,7 @@ public class GameView extends SurfaceView implements Runnable
 
 
     private PlatformManager platformManager;
+    private BitmapFactory.Options options;
     private Player player;
     private double delta;
 
@@ -186,6 +187,7 @@ public class GameView extends SurfaceView implements Runnable
         super(context);
         privContext =context.getApplicationContext();
         surfaceHolder = getHolder();
+
         mediaPlayer = MediaPlayer.create(privContext, R.raw.badtheme);
         gameOver = false;
 
@@ -208,6 +210,8 @@ public class GameView extends SurfaceView implements Runnable
             manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             //Log.d(TAG, "GameView: Sensor Successfully Added");
         }
+        options=new BitmapFactory.Options();
+        options.inScaled=false;
 
         screenHeight=dis.heightPixels;
         screenWidth=dis.widthPixels;
@@ -220,9 +224,9 @@ public class GameView extends SurfaceView implements Runnable
         //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
 
-        background = BitmapFactory.decodeResource(getResources(),R.drawable.img_background);
-        background = Bitmap.createScaledBitmap(background,screenWidth,
-                screenHeight,false);
+        background = BitmapFactory.decodeResource(getResources(),R.drawable.img_background,options);
+        background = Bitmap.createBitmap(background,0,0,background.getWidth(),background.getHeight());
+        //background = Bitmap.createScaledBitmap(background,screenWidth, screenHeight,false);
         /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
         bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
                 frameH,false);*/
@@ -245,19 +249,38 @@ public class GameView extends SurfaceView implements Runnable
             canvas= surfaceHolder.lockCanvas();
             canvas.drawColor(Color.BLACK);
 
-            canvas.drawBitmap(background,0,0,null);
+            int gridWidth=background.getWidth();
+            int gridHeight=background.getHeight();
+
+            for(int i=0; i<screenHeight/gridHeight; i++){
+                for(int j=0; j<screenWidth/gridWidth; j++){
+
+                    canvas.drawBitmap(background,j*gridWidth,i*gridHeight,null);
+                }
+            }
+
+            //canvas.drawBitmap(background,0,0,null);
+
             canvas.translate(0,canvasTranslateY);
 
 
 
+
             platformManager.DrawPlatforms(canvas);
+
             player.draw(canvas);
+
             canvas.drawText("Score: "+score,screenWidth/2,64,scoreTextColour);
 
 
 
             if(gameOver){
                 canvas.drawText("GAME OVER!",screenWidth/2,screenHeight/2,scoreTextColour);
+
+                if(player.position.y < screenHeight){
+
+                }
+
             }
             //canvas.drawBitmap(bitmap,frameToDraw,
                     //whereToDraw,null);
@@ -272,7 +295,7 @@ public class GameView extends SurfaceView implements Runnable
             //platformManager.ResetPlatforms(player, 950);
             //platformManager.UpdatePlatforms(player);
             platformManager.PlatformCollisionCheck(player, (float) dt);
-
+            platformManager.UpdatePlatforms(player);
             player.update(dt, screenWidth);
         }
     }

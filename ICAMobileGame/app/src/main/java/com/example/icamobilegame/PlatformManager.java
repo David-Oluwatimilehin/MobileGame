@@ -1,7 +1,10 @@
 package com.example.icamobilegame;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +60,27 @@ public class PlatformManager {
                 continue;
             }
 
-            Platform platform = new Platform(context,SpawnX,SpawnY);
+            int randNum;
+            randNum=rand.nextInt(2+1);
+            System.out.println("rand num generated: "+randNum);
+            switch(randNum){
+                case 0:
+                    MovingPlatform mp_platform= new MovingPlatform(context,SpawnX,SpawnY);
+                    platformsList.add(mp_platform);
+                    break;
+                case 1:
+                    Platform platform= new Platform(context,SpawnX,SpawnY);
+                    platformsList.add(platform);
+                    break;
+                case 2:
+                    BreakingPlatform bp_platform=new BreakingPlatform(context,SpawnX,SpawnY);
+                    platformsList.add(bp_platform);
+                    break;
 
-            platformsList.add(platform);
+            }
+
+
+
 
             lastPlatformX=SpawnX;
             lastPlatformY=SpawnY;
@@ -86,7 +107,13 @@ public class PlatformManager {
         }
     }
     public void UpdatePlatforms(Player player){
-        float playerY = player.position.y;
+
+        for(Platform p: this.platformsList)
+        {
+            p.Update();
+        }
+
+        /*float playerY = player.position.y;
 
         // Check if the player has moved upwards
         if (playerY < lastPlayerY) {
@@ -104,7 +131,7 @@ public class PlatformManager {
         lastPlayerY = playerY;
 
         // Remove platforms that are offscreen
-        platformsList.removeIf(platform -> platform.pos.y + platform.platHeight < 0);
+        platformsList.removeIf(platform -> platform.pos.y + platform.platHeight < 0);*/
 
     }
 
