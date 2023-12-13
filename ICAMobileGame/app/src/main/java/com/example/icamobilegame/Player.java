@@ -27,10 +27,11 @@ public class Player {
     private int playerAnimX=2,playerAnimY;
 
     private Rect playerRect;
-    private RectF dstRect;
+    public RectF hitBox;
 
     private Paint playerPaint;
     public boolean isJumping;
+    public boolean isFalling;
     public boolean onPlatform;
 
     public Player(Context context, float x, float y) {
@@ -52,6 +53,8 @@ public class Player {
         jumpForce = (velocity.y * 6);
         this.jumpHeight=200;
         this.isJumping=true;
+        this.isFalling=false;
+
 
         this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.dante,options);
         for(int j=0; j<sprites.length; j++)
@@ -61,9 +64,8 @@ public class Player {
                 sprites[j][i]= getScaledBitmap(Bitmap.createBitmap(playerBitmap,currentPosX,currentPosY,frameW,frameH));
             }
 
-
-        dstRect= new RectF(new RectF(this.position.x, this.position.y,
-                this.position.x*frameW,0));
+        hitBox=new RectF();
+        this.hitBox.set(position.x,position.y,position.x+frameW,position.y+frameH);
 
         playerRect= new Rect(0,0,frameW,frameH);
         //playerRect.offsetTo((int)this.position.x,(int)this.position.y);
@@ -101,6 +103,7 @@ public class Player {
         {
             position.y=Vector2D.subtract(position,gravity.y);
         }
+        this.isFalling=true;
 
 
     }
@@ -120,13 +123,14 @@ public class Player {
             }
         }
 
-        playerRect.offsetTo((int)this.position.x,(int)this.position.y);
+        hitBox.offsetTo((int)this.position.x,(int)this.position.y);
     }
 
     public void draw(Canvas canvas)
     {
         //playerPaint.setColor(Color.GREEN);
-        canvas.drawRect(playerRect, playerPaint);
+
+        canvas.drawRect(hitBox, playerPaint);
         canvas.drawBitmap(getSprites(playerAnimY,playerAnimX), this.position.x, this.position.y,null);
         Animate();
         // TODO: Fix Animation

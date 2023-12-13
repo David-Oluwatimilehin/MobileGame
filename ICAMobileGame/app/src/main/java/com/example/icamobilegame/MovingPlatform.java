@@ -5,10 +5,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 public class MovingPlatform extends Platform{
 
-    private float speed=10.0f;
+    private float speed=10f;
     private float range= platWidth*3;
     private float direction=1;
     private float start= pos.x;;
@@ -17,6 +18,9 @@ public class MovingPlatform extends Platform{
 
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bluelatform);
         bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
+
+        hitBox= new RectF();
+        hitBox.set(pos.x,pos.y,pos.x+platWidth,pos.y+platHeight);
 
         rect = new Rect(0,0,bitmap.getWidth(), bitmap.getHeight());
         rect.offsetTo((int)this.pos.x,(int)this.pos.y);
@@ -35,5 +39,7 @@ public class MovingPlatform extends Platform{
         }
 
     }
+
+
 }
 

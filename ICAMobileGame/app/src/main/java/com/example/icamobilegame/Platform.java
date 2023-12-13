@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 import org.jetbrains.annotations.Contract;
 
@@ -17,9 +18,11 @@ public class Platform {
     protected Bitmap bitmap;
     protected int platWidth=140, platHeight=40;
     protected Rect rect;
+    protected RectF hitBox;
+    protected Paint myPaint;
     protected boolean remove;
     public Vector2D pos=new Vector2D();
-    private Paint myPaint;
+
 
     Paint collisionColour = new Paint();
 
@@ -34,13 +37,12 @@ public class Platform {
 
         collisionColour.setColor(Color.RED);
 
-        int rand= 1;
-        switch(rand){
-            case 1:
-                this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.greenplatform);
-                this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
-                break;
-        }
+
+        this.bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.greenplatform);
+        this.bitmap = Bitmap.createScaledBitmap(bitmap,platWidth,platHeight,false);
+
+        hitBox= new RectF();
+        hitBox.set(pos.x,pos.y,pos.x+platWidth,pos.y+platHeight);
 
         rect = new Rect(0,0,bitmap.getWidth(), bitmap.getHeight());
         rect.offsetTo((int)this.pos.x,(int)this.pos.y);
@@ -62,28 +64,32 @@ public class Platform {
 
     public void CollisionCheck(Player player, float dt){
 
-        if(rect.left <= player.getPlayerRect().right && player.getPlayerRect().left <= rect.right
+        if(player.isFalling && player.position.y < pos.y
+           && player.hitBox.intersect(hitBox)){
+            player.Jump(dt);
+        }
+        /*if(rect.left <= player.getPlayerRect().right && player.getPlayerRect().left <= rect.right
                 && rect.top <= player.getPlayerRect().bottom && player.getPlayerRect().top <= rect.bottom)
         //if(Rect.intersects(player.getPlayerRect(),this.rect))
         {
 
             //System.out.println("Collision Happened");
-            player.Jump(dt);
+
             //player.onPlatform=true;
             //player.isJumping=false;
 
         }else{
 
             //System.out.println("Collision Not Happened");
-        }
+        }*/
 
     }
 
 
     public void draw(Canvas canvas) {
 
-        rect.offsetTo((int)this.pos.x,(int)this.pos.y);
-        canvas.drawRect(rect,myPaint);
+        hitBox.offsetTo((int)this.pos.x,(int)this.pos.y);
+        canvas.drawRect(hitBox,myPaint);
         canvas.drawBitmap(bitmap, this.pos.x, this.pos.y, null);
 
 
