@@ -64,9 +64,10 @@ public class Platform {
 
     public void CollisionCheck(Player player, float dt){
 
-        if(player.isFalling && player.position.y < pos.y
+        if(player.isFalling && player.position.y > pos.y
            && player.hitBox.intersect(hitBox)){
             player.Jump(dt);
+            player.isJumping=false;
         }
         /*if(rect.left <= player.getPlayerRect().right && player.getPlayerRect().left <= rect.right
                 && rect.top <= player.getPlayerRect().bottom && player.getPlayerRect().top <= rect.bottom)
