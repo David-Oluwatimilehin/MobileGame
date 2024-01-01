@@ -14,12 +14,11 @@ public class Player {
     private Bitmap [][] sprites= new Bitmap[5][4];
     private BitmapFactory.Options options= new BitmapFactory.Options();
 
-    private int jumpHeight;
 
-    private int score;
 
     public float jumpForce;
     public Vector2D position=new Vector2D();
+    private float lastY;
     public Vector2D velocity = new Vector2D();
     public Vector2D gravity=new Vector2D();
     private final int frameW=128;
@@ -35,6 +34,7 @@ public class Player {
     public boolean isJumping;
     public boolean isFalling;
     public boolean onPlatform;
+    private int score;
 
     public int getScore() {
         return score;
@@ -46,6 +46,7 @@ public class Player {
 
         this.position.x = x;
         this.position.y = y;
+        this.lastY=position.y;
 
         this.score=0;
         this.animSpeed = 60;
@@ -58,7 +59,7 @@ public class Player {
         //this.speedY = 5; // Adjust player speed as needed
 
         jumpForce = (velocity.y * 6);
-        this.jumpHeight=200;
+
         this.isJumping=true;
         this.isFalling=false;
 
@@ -123,6 +124,13 @@ public class Player {
         this.isFalling=true;
     }
 
+    private void UpdateScore(){
+        if (position.y < lastY) {
+            // Increase score when the player is moving upward
+            score += 10; // Adjust the score increase as needed
+        }
+        lastY = position.y;
+    }
 
     public void update( float screenWidth) {
         //Log.d(TAG, "update: X:"+position.x+"Y: "+position.y);
@@ -134,6 +142,7 @@ public class Player {
             ApplyGravity();
 
 
+
             if (position.x < 0) {
                 position.x = screenWidth; // Wrap to the right side
             } else if (position.x > screenWidth) {
@@ -141,6 +150,7 @@ public class Player {
             }
         }
 
+        UpdateScore();
 
     }
 

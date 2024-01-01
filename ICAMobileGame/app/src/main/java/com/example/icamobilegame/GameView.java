@@ -10,8 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
+
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,11 +18,11 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
+
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.TextView;
+
 
 public class GameView extends SurfaceView implements Runnable
 {
@@ -39,14 +38,14 @@ public class GameView extends SurfaceView implements Runnable
 
     private Context privContext;
     private MediaPlayer mediaPlayer;
+    private MediaPlayer soundEffect;
     private DisplayMetrics display=new DisplayMetrics();
 
     int screenHeight;
     int screenWidth;
     float canvasTranslateY;
 
-    private int frameLengthInMS=100;
-    private int frameW = 115, frameH = 137;
+
 
     private Vector2D playerSpawnPoint= new Vector2D(400,450);
 
@@ -57,6 +56,8 @@ public class GameView extends SurfaceView implements Runnable
 
 
     private PlatformManager platformManager;
+    private AccelerometerHandler accelManager;
+
     private BitmapFactory.Options options;
     private Player player;
     private double delta;
@@ -73,61 +74,14 @@ public class GameView extends SurfaceView implements Runnable
     private boolean gameOver;
     private volatile boolean playing;
 
-    private Rect frameToDraw =
-            new Rect(0,0,frameW,frameH);
-    // The place where it is going to be displayed
-    private RectF whereToDraw =
-            new RectF((float)playerSpawnPoint.x, (float)playerSpawnPoint.y, (float) playerSpawnPoint.x+ frameW, frameH);
 
-
-
-    private RectF whereToDrawBackgorund;
-    private SensorEventListener listener= new SensorEventListener() {
-    public void onSensorChanged(SensorEvent event) {
-        float xAxis = event.values[0];
-        float yAxis = event.values[1];
-        float zAxis = event.values[2];
-
-        final float alpha = 0.8f;
-
-        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-
-
-        linear_acceleration[0] = event.values[0] - gravity[0];
-        linear_acceleration[1] = event.values[1] - gravity[1];
-        linear_acceleration[2] = event.values[2] - gravity[2];
-        //Log.d(TAG, "onSensorChanged: X:"+linear_acceleration[0]+" Y:"+linear_acceleration[1]+" Z:"+linear_acceleration[2]);
-
-        if(playing){
-
-            if(xAxis>2)
-            {
-                player.position=player.moveLeft(linear_acceleration[0]);
-            }if(xAxis<-2){
-                player.position=player.moveRight(-linear_acceleration[0]);
-            }
-
-
-        }
-
-    }
-
-    public void onAccuracyChanged(Sensor s, int i) {
-
-    }
-};
     public void pause()
     {
         playing=false;
 
-        if(sensor != null)
-        {
-            manager.unregisterListener(listener);
-        }
+        accelManager.UnregisterListener();
         mediaPlayer.pause();
-
+        soundEffect.pause();
         try{
             gameThread.join();
         }catch(InterruptedException ie){
@@ -138,10 +92,10 @@ public class GameView extends SurfaceView implements Runnable
     {
         playing=true;
         mediaPlayer.start();
+        soundEffect.start();
 
-        if(sensor != null){
-            manager.registerListener(listener,sensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
+        accelManager.RegisterListener();
+
         gameThread= new Thread(this);
         gameThread.start();
     }
@@ -213,18 +167,17 @@ public class GameView extends SurfaceView implements Runnable
 
 
 
-    public void setupGravity(){
-        gravity[0]=9.81f;
-        gravity[1]=9.81f;
-        gravity[2]=9.81f;
-    }
+
     public GameView(Context context, DisplayMetrics dis)
     {
         super(context);
         privContext =context.getApplicationContext();
         surfaceHolder = getHolder();
 
-        mediaPlayer = MediaPlayer.create(privContext, R.raw.gametheme);
+        mediaPlayer = MediaPlayer.create(privContext, R.raw.badtheme);
+        mediaPlayer.setLooping(true);
+        soundEffect= MediaPlayer.create(privContext,R.raw.jumpsound);
+
         gameOver = false;
 
         score = 0;
@@ -237,15 +190,8 @@ public class GameView extends SurfaceView implements Runnable
 
         //listener
         //Log.d(TAG, "GameView: Sensor Manager Initialization");
-        manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        boolean hasAccel =manager.getSensorList(Sensor.TYPE_ACCELEROMETER).size()> 0;
+        accelManager=new AccelerometerHandler(privContext);
 
-        if(hasAccel){
-            sensor = manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-            //sensor = manager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD).get(0);
-            manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-            //Log.d(TAG, "GameView: Sensor Successfully Added");
-        }
         options=new BitmapFactory.Options();
         options.inScaled=false;
 
@@ -255,7 +201,7 @@ public class GameView extends SurfaceView implements Runnable
         platformManager= new PlatformManager(10,screenWidth,screenHeight);
         platformManager.SetPlatforms(context);
 
-        player= new Player(context,playerSpawnPoint.x, playerSpawnPoint.y);
+        player= new Player(context,playerSpawnPoint.x, playerSpawnPoint.y+150);
         //player.SetupPlayer(context,4);
         //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
@@ -273,8 +219,9 @@ public class GameView extends SurfaceView implements Runnable
     public void stop()
     {
 
-        manager.unregisterListener(listener);
+        //manager.unregisterListener(listener);
         mediaPlayer.release();
+        soundEffect.release();
     }
 
 
@@ -298,9 +245,6 @@ public class GameView extends SurfaceView implements Runnable
             //canvas.drawBitmap(background,0,0,null);
 
             canvas.translate(0,canvasTranslateY);
-
-
-
 
             platformManager.DrawPlatforms(canvas);
 
@@ -330,9 +274,17 @@ public class GameView extends SurfaceView implements Runnable
         if (isMoving) {
             //platformManager.ResetPlatforms(player, 950);
             //platformManager.UpdatePlatforms(player);
-            platformManager.PlatformCollisionCheck(player, (float) dt);
+            
+            if(mediaPlayer.isPlaying())
+            {
+                Log.d(TAG, "update: Yay there is music");
+            }
+            if(platformManager.PlatformCollisionCheck(player, (float) dt)){
+                soundEffect.start();
+                soundEffect.reset();
+            }
             platformManager.UpdatePlatforms(player,privContext);
-            player.update( screenWidth);
+            player.update(screenWidth);
         }
     }
 
@@ -345,7 +297,7 @@ public class GameView extends SurfaceView implements Runnable
                 player.isJumping=true;
 
                 player.Jump((float)delta);
-                canvasTranslateY -= player.velocity.y;
+                //canvasTranslateY -= player.velocity.y;
 
                 //System.out.println(jumpPressed);
         }

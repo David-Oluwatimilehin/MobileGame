@@ -22,6 +22,7 @@ public class PlatformManager {
     int SpawnX;
     int SpawnY;
     float lastPlayerY;
+    float deltaY;
 
     int platformGenX=0;
     int platformGenY=0;
@@ -110,20 +111,23 @@ public class PlatformManager {
         }*/
     }
 
-    void PlatformCollisionCheck(Player playerRef,float deltaTime){
+    boolean PlatformCollisionCheck(Player playerRef,float deltaTime){
         for(Platform p: this.platformsList)
         {
             collisionResult=p.CollisionCheck(playerRef,deltaTime);
 
             if(collisionResult){
                 playerRef.Jump(deltaTime);
-                playerRef.ChangeColour(false);
+                playerRef.ChangeColour(collisionResult);
                 playerRef.isJumping=false;
+
             }else{
                 playerRef.ChangeColour(true);
                 // Do Nothing....
+
             }
         }
+        return collisionResult;
     }
     public void UpdatePlatforms(Player player,Context context){
 
@@ -142,11 +146,11 @@ public class PlatformManager {
         }*/
         //Check if the player has moved upwards
         if (playerY < lastPlayerY) {
-            float deltaY = lastPlayerY - playerY;
+             deltaY = lastPlayerY - playerY;
 
             // Move existing platforms upward
             for (Platform platform : platformsList) {
-                platform.moveUp(new Vector2D(0,-deltaY));
+                platform.moveUp(new Vector2D(0,deltaY));
             }
 
             // Generate new platforms at the bottom
@@ -166,11 +170,37 @@ public class PlatformManager {
     void generatePlatformsAboveScreen(float deltaY,Context context){
         int platformCount = (int) (deltaY / 40);
         Log.d(TAG, "generatePlatformsAboveScreen: "+platformCount);
-        for (int i = 0; i < platformCount; i++) {
+        for (int i = 0; i < 3; i++) {
 
-            float x = rand.nextInt(screenWidth - 40);
-            float y = rand.nextInt(platformGenY)-lastPlayerY +screenHeight;
-            //SetPlatforms(context);
+            float x = rand.nextInt(screenWidth - 140);
+            float y = rand.nextInt(200);
+
+            int randNum;
+            randNum=rand.nextInt(9+1);
+            System.out.println("rand num generated: "+randNum);
+            switch(randNum){
+                case 0:
+                case 9:
+                    platformsList.add(new MovingPlatform(context,(int)x,(int)y));
+                    break;
+                case 1:
+                case 5:
+                case 8:
+                case 6:
+                case 4:
+                case 7:
+                case 10:
+                    platformsList.add(new Platform(context,(int)x,(int)y));
+                    break;
+                case 2:
+                    platformsList.add(new BreakingPlatform(context,(int)x,(int)y));
+                    break;
+                case 3:
+                    break;
+
+
+            }
+
 
 
         }

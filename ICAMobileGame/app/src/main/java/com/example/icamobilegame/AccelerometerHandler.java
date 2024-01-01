@@ -1,10 +1,13 @@
 package com.example.icamobilegame;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -24,7 +27,9 @@ public class AccelerometerHandler implements SensorEventListener {
     public AccelerometerHandler(Context context) {
         manager = (SensorManager)
                 context.getSystemService(Context.SENSOR_SERVICE);
-        if (manager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+
+        boolean hasAccel =manager.getSensorList(Sensor.TYPE_ACCELEROMETER).size()> 0;
+        if (hasAccel) {
             accelerometer =
                     manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
             manager.registerListener(this, accelerometer,
@@ -68,6 +73,10 @@ public class AccelerometerHandler implements SensorEventListener {
             linear_acceleration[0] = event.values[0] - gravity[0];
             linear_acceleration[1] = event.values[1] - gravity[1];
             linear_acceleration[2] = event.values[2] - gravity[2];
+
+            //Log.d(TAG, "onSensorChanged: X"+ accelX);
+            //Log.d(TAG, "onSensorChanged: Y"+ accelY);
+            //Log.d(TAG, "onSensorChanged: Z"+ accelZ);
         }
 
         @Override
