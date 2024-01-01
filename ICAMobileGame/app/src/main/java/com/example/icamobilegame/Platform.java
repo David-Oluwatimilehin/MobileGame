@@ -1,5 +1,7 @@
 package com.example.icamobilegame;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 import org.jetbrains.annotations.Contract;
 
@@ -51,38 +54,55 @@ public class Platform {
 
     }
     public void moveUp(Vector2D other){
-        this.pos.x+= other.x;
+        //this.pos.x+= other.x;
         this.pos.y+= other.y;
         rect.offsetTo((int)this.pos.x,(int)this.pos.y);
     }
 
+    public void Move(float x,float y){
+
+        pos.y+=y;
+    }
     public void Update(){
 
     }
 
 
 
-    public void CollisionCheck(Player player, float dt){
+    public boolean CollisionCheck(Player player, float dt){
 
-        if(player.isFalling && player.position.y > pos.y
+        /*if(player.isFalling && player.position.y > pos.y
            && player.hitBox.intersect(hitBox)){
-            player.Jump(dt);
+
             player.isJumping=false;
-        }
+        }*/
         /*if(rect.left <= player.getPlayerRect().right && player.getPlayerRect().left <= rect.right
                 && rect.top <= player.getPlayerRect().bottom && player.getPlayerRect().top <= rect.bottom)
-        //if(Rect.intersects(player.getPlayerRect(),this.rect))
+        */
+        /*if(player.hitBox.intersect(hitBox))
         {
 
             //System.out.println("Collision Happened");
 
             //player.onPlatform=true;
-            //player.isJumping=false;
+            player.Jump(dt);
+            player.isJumping=false;
 
         }else{
 
             //System.out.println("Collision Not Happened");
         }*/
+
+        if(RectF.intersects(player.hitBox,hitBox))
+        {
+            //Log.d(TAG, "Collision Happened: ");
+
+            return true;
+        }
+        else {
+            //Log.d(TAG, "Collision Not Happened: ");
+            return false;
+        }
 
     }
 

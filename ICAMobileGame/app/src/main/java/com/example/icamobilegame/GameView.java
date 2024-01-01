@@ -2,6 +2,8 @@ package com.example.icamobilegame;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static java.lang.Thread.sleep;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -149,26 +151,60 @@ public class GameView extends SurfaceView implements Runnable
         long lastFPSCheck=System.currentTimeMillis();
         int fps = 0;
 
+        final double MAX_PERIOD=60.0f;
+        final double UPS_PERIOD= 1E+3/MAX_PERIOD;
+        long sleepTime;
+        long elapsedTimeMillis;
+        long previousTimeMillis= System.currentTimeMillis();
         long lastDelta=System.nanoTime();
         long nanoSec= 1_000_000_000;
+
+        int updateCount=0;
+        int frameCount=0;
+
         if(!playing){
             player.position=playerSpawnPoint;
         }
         while(playing)
         {
-            long nowDelta= System.nanoTime();
-            long timeSinceLastDelta= nowDelta-lastDelta;
-            delta = timeSinceLastDelta / nanoSec;
+            try{
 
-            update(delta);
-            draw();
-            fps++;
-            long now= System.currentTimeMillis();
+                update(1.0f);
+                draw();
+
+            }catch(IllegalArgumentException e){
+                e.printStackTrace();
+            }
+
+            updateCount++;
+            frameCount++;
+
+
+            /*long nowDelta= System.nanoTime();
+            long timeSinceLastDelta= nowDelta-lastDelta;
+            delta = timeSinceLastDelta / nanoSec;*/
+
+            long currentTimeMillis=System.currentTimeMillis();
+            elapsedTimeMillis=currentTimeMillis-previousTimeMillis;
+            //previousTimeMillis=currentTimeMillis;
+            sleepTime=(long)(updateCount*UPS_PERIOD - elapsedTimeMillis);
+            if(sleepTime > 0){
+                try{
+                    sleep(sleepTime);
+                }catch(InterruptedException e){
+                   e.printStackTrace();
+                }
+                //fps++;
+
+
+            }
+
+            /*long now= System.currentTimeMillis();
             if(now-lastFPSCheck >= 1000){
-                Log.d(TAG, "FPS: "+ fps +" "+System.currentTimeMillis());
+                //Log.d(TAG, "FPS: "+ fps +" "+System.currentTimeMillis());
                 fps = 0;
                 lastFPSCheck += 1000;
-            }
+            }*/
 
 
         }
@@ -188,7 +224,7 @@ public class GameView extends SurfaceView implements Runnable
         privContext =context.getApplicationContext();
         surfaceHolder = getHolder();
 
-        mediaPlayer = MediaPlayer.create(privContext, R.raw.badtheme);
+        mediaPlayer = MediaPlayer.create(privContext, R.raw.gametheme);
         gameOver = false;
 
         score = 0;
@@ -270,7 +306,7 @@ public class GameView extends SurfaceView implements Runnable
 
             player.draw(canvas);
 
-            canvas.drawText("Score: "+score,screenWidth/2,64,scoreTextColour);
+            canvas.drawText("Score: "+player.getScore(),screenWidth/2,64,scoreTextColour);
 
 
 
@@ -295,8 +331,8 @@ public class GameView extends SurfaceView implements Runnable
             //platformManager.ResetPlatforms(player, 950);
             //platformManager.UpdatePlatforms(player);
             platformManager.PlatformCollisionCheck(player, (float) dt);
-            platformManager.UpdatePlatforms(player);
-            player.update(dt, screenWidth);
+            platformManager.UpdatePlatforms(player,privContext);
+            player.update( screenWidth);
         }
     }
 

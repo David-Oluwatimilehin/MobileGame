@@ -17,7 +17,8 @@ public class PlatformManager {
     private Platform tempPlat;
     private int barCount;
     private int screenHeight,screenWidth;
-
+    private boolean generateAgain;
+    private boolean collisionResult;
     int SpawnX;
     int SpawnY;
     float lastPlayerY;
@@ -32,6 +33,7 @@ public class PlatformManager {
         rand= new Random(90868);
         barCount=numOfPlatform;
 
+        generateAgain=false;
         screenWidth=sx;
         screenHeight=sy;
 
@@ -41,8 +43,19 @@ public class PlatformManager {
         lastPlatformX = 0;
         lastPlatformY = screenHeight - 40;
     }
+    public int getRandX(){
+        SpawnX= rand.nextInt((screenWidth-140));
+        return SpawnX;
+    }
+    private int getRandY(int playerY) {
+        SpawnY =  playerY - rand.nextInt(platformGenY / 10 * platformGenY);
+        return SpawnY;
+    }
+
+
     void SetPlatforms(Context context)
     {
+
 
         while (platformsList.size() < barCount){
             SpawnX= rand.nextInt((screenWidth-140));
@@ -79,9 +92,6 @@ public class PlatformManager {
 
             }
 
-
-
-
             lastPlatformX=SpawnX;
             lastPlatformY=SpawnY;
 
@@ -103,19 +113,34 @@ public class PlatformManager {
     void PlatformCollisionCheck(Player playerRef,float deltaTime){
         for(Platform p: this.platformsList)
         {
-            p.CollisionCheck(playerRef,deltaTime);
+            collisionResult=p.CollisionCheck(playerRef,deltaTime);
+
+            if(collisionResult){
+                playerRef.Jump(deltaTime);
+                playerRef.ChangeColour(false);
+                playerRef.isJumping=false;
+            }else{
+                playerRef.ChangeColour(true);
+                // Do Nothing....
+            }
         }
     }
-    public void UpdatePlatforms(Player player){
+    public void UpdatePlatforms(Player player,Context context){
 
         for(Platform p: this.platformsList)
         {
+
             p.Update();
+            //p.Move(0,2 - player.position.y/screenWidth );
+
         }
 
-        /*float playerY = player.position.y;
+        float playerY = player.position.y;
 
-        // Check if the player has moved upwards
+        /*if (player.position.y > platformsList.get(platformsList.size()-1).pos.y + screenHeight) {
+            platformsList.add(new Platform(context, getRandX(),/*getRandY((int)player.position.y(int) ((int)platformsList.get(platformsList.size()-1).pos.y-100)));
+        }*/
+        //Check if the player has moved upwards
         if (playerY < lastPlayerY) {
             float deltaY = lastPlayerY - playerY;
 
@@ -126,15 +151,30 @@ public class PlatformManager {
 
             // Generate new platforms at the bottom
 
+            generateAgain=true;
+            generatePlatformsAboveScreen(deltaY,context);
+            generateAgain=false;
         }
 
         lastPlayerY = playerY;
 
         // Remove platforms that are offscreen
-        platformsList.removeIf(platform -> platform.pos.y + platform.platHeight < 0);*/
+        platformsList.removeIf(platform -> platform.pos.y + platform.platHeight < 0);
 
     }
 
+    void generatePlatformsAboveScreen(float deltaY,Context context){
+        int platformCount = (int) (deltaY / 40);
+        Log.d(TAG, "generatePlatformsAboveScreen: "+platformCount);
+        for (int i = 0; i < platformCount; i++) {
+
+            float x = rand.nextInt(screenWidth - 40);
+            float y = rand.nextInt(platformGenY)-lastPlayerY +screenHeight;
+            //SetPlatforms(context);
+
+
+        }
+    }
     void ResetPlatforms(Player playerRef, int height)
     {
         int limit = height/3;

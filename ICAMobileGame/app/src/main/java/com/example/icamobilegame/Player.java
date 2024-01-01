@@ -16,6 +16,8 @@ public class Player {
 
     private int jumpHeight;
 
+    private int score;
+
     public float jumpForce;
     public Vector2D position=new Vector2D();
     public Vector2D velocity = new Vector2D();
@@ -34,6 +36,10 @@ public class Player {
     public boolean isFalling;
     public boolean onPlatform;
 
+    public int getScore() {
+        return score;
+    }
+
     public Player(Context context, float x, float y) {
         options.inScaled=false;
         onPlatform=false;
@@ -41,6 +47,7 @@ public class Player {
         this.position.x = x;
         this.position.y = y;
 
+        this.score=0;
         this.animSpeed = 60;
         this.velocity.x = 50.0f;
         this.velocity.y = -50.0f;
@@ -55,7 +62,7 @@ public class Player {
         this.isJumping=true;
         this.isFalling=false;
 
-
+        // TODO: Fix This
         this.playerBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.dante,options);
         for(int j=0; j<sprites.length; j++)
             for(int i=0; i<sprites[j].length; i++) {
@@ -64,11 +71,20 @@ public class Player {
                 sprites[j][i]= getScaledBitmap(Bitmap.createBitmap(playerBitmap,currentPosX,currentPosY,frameW,frameH));
             }
 
-        hitBox=new RectF();
-        this.hitBox.set(position.x,position.y,position.x+frameW,position.y+frameH);
+        this.hitBox=new RectF();
+        this.hitBox.set(position.x,position.y,position.x+128,position.y+128);
+        //hitBox.offsetTo((int)this.position.x,(int)this.position.y);
 
-        playerRect= new Rect(0,0,frameW,frameH);
+        playerRect= new Rect(frameH,frameW,0,0);
         //playerRect.offsetTo((int)this.position.x,(int)this.position.y);
+    }
+    public void ChangeColour(boolean result){
+        if(result){
+            playerPaint.setColor(Color.GREEN);
+        }else{
+            playerPaint.setColor(Color.RED);
+        }
+
     }
 
     public Vector2D moveLeft(float lin){
@@ -79,14 +95,15 @@ public class Player {
         this.position.x += velocity.x*lin*2;
         return position;
     }
-    public void Jump(float dt){
+    public void Jump(float dt)
+    {
 
         position=Vector2D.add(position,jumpForce);
-
         this.isJumping=false;
+
     }
     public void Animate() {
-        // TODO: Fix This
+
         animTick++;
 
         if (animTick >= animSpeed) {
@@ -97,24 +114,25 @@ public class Player {
             }
         }
     }
-    private void ApplyGravity(double deltaTimeSec){
+    private void ApplyGravity(){
 
         if(!onPlatform)
         {
             position.y=Vector2D.subtract(position,gravity.y);
         }
         this.isFalling=true;
-
-
     }
 
 
-    public void update(double deltaTime, float screenWidth) {
+    public void update( float screenWidth) {
         //Log.d(TAG, "update: X:"+position.x+"Y: "+position.y);
+        hitBox.offsetTo(this.position.x,this.position.y);
+
         if(!isJumping){
 
             //position=Vector2D.add(position,Vector2D.scalar(velocity,dt));
-            ApplyGravity(deltaTime);
+            ApplyGravity();
+
 
             if (position.x < 0) {
                 position.x = screenWidth; // Wrap to the right side
@@ -123,7 +141,7 @@ public class Player {
             }
         }
 
-        hitBox.offsetTo((int)this.position.x,(int)this.position.y);
+
     }
 
     public void draw(Canvas canvas)

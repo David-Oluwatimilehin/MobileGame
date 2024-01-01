@@ -28,20 +28,24 @@ public class BreakingPlatform extends Platform {
         hitBox.set(pos.x,pos.y,pos.x+platWidth,pos.y+platHeight);
 
         rect = new Rect(0,0,bitmap.getWidth(), bitmap.getHeight());
-        rect.offsetTo((int)this.pos.x,(int)this.pos.y);
+
     }
 
     @Override
     public void Update() {
         super.Update();
+
+
+
         if(!isSolid && System.nanoTime() / 1e9f - breakTime > 2f){
+
             remove=true;
         }
     }
 
     @Override
     public void draw(Canvas canvas) {
-
+        hitBox.offsetTo((int)this.pos.x,(int)this.pos.y);
 
         if(isSolid){
 
