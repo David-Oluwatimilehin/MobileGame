@@ -119,7 +119,7 @@ public class Player {
 
         if(!onPlatform)
         {
-            position.y=Vector2D.subtract(position,gravity.y);
+            position.y=Vector2D.subtract(position,gravity.y*(float) 1.5);
         }
         this.isFalling=true;
     }
@@ -171,7 +171,5 @@ public class Player {
     private Bitmap getSprites(int PosX,int PosY){
         return sprites[PosX][PosY];
     }
-    public Rect getPlayerRect() {
-        return playerRect;
-    }
+
 }

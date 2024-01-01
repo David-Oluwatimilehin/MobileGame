@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -163,13 +164,25 @@ public class PlatformManager {
         lastPlayerY = playerY;
 
         // Remove platforms that are offscreen
+        Log.d(TAG, "platform num : "+ platformsList.size());
+        //removeOffscreenPlatforms();
         platformsList.removeIf(platform -> platform.pos.y + platform.platHeight < 0);
 
     }
 
+    private void removeOffscreenPlatforms() {
+        // Remove platforms that are offscreen
+        Iterator<Platform> iterator = platformsList.iterator();
+        while (iterator.hasNext()) {
+            Platform platform = iterator.next();
+            if (platform.pos.y +40 < 0) {
+                iterator.remove();
+            }
+        }
+    }
+
     void generatePlatformsAboveScreen(float deltaY,Context context){
-        int platformCount = (int) (deltaY / 40);
-        Log.d(TAG, "generatePlatformsAboveScreen: "+platformCount);
+
         for (int i = 0; i < 3; i++) {
 
             float x = rand.nextInt(screenWidth - 140);

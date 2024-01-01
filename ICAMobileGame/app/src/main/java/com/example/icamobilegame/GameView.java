@@ -22,6 +22,8 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
 
 
 public class GameView extends SurfaceView implements Runnable
@@ -29,12 +31,13 @@ public class GameView extends SurfaceView implements Runnable
     private SurfaceHolder surfaceHolder;
 
     private Bitmap background;
+    private Bitmap menuBackground;
+    private Bitmap menuImage;
     private Canvas canvas;
     private Thread gameThread;
-    private SensorManager manager;
-    private float gravity[]= new float[3];
-    private float[] linear_acceleration= new float[3];
-    private Sensor sensor;
+
+
+    private Button playButton;
 
     private Context privContext;
     private MediaPlayer mediaPlayer;
@@ -49,10 +52,7 @@ public class GameView extends SurfaceView implements Runnable
 
     private Vector2D playerSpawnPoint= new Vector2D(400,450);
 
-    private float jumpTime=1.0f;
-    float jumpHeight = 10.0f;
-    private float jumpForce=(jumpHeight*2.0f) / (jumpTime/2.0f);
-    private double Gravity=(-2*jumpHeight)/ Math.pow(jumpTime/2.0f,2);
+
 
 
     private PlatformManager platformManager;
@@ -64,13 +64,14 @@ public class GameView extends SurfaceView implements Runnable
 
 
     private int currentFrame;
-    private int score;
+    private static int finalScore;
     private Paint scoreTextColour;
 
     private long lastFrameChangeTime=0;
 
 
     private boolean isMoving=true;
+    private boolean gameStarted;
     private boolean gameOver;
     private volatile boolean playing;
 
@@ -171,6 +172,7 @@ public class GameView extends SurfaceView implements Runnable
     public GameView(Context context, DisplayMetrics dis)
     {
         super(context);
+
         privContext =context.getApplicationContext();
         surfaceHolder = getHolder();
 
@@ -179,17 +181,22 @@ public class GameView extends SurfaceView implements Runnable
         soundEffect= MediaPlayer.create(privContext,R.raw.jumpsound);
 
         gameOver = false;
-
-        score = 0;
+        gameStarted=true;
+        finalScore = 0;
         scoreTextColour= new Paint(Paint.ANTI_ALIAS_FLAG);
         scoreTextColour.setTextAlign(Paint.Align.CENTER);
         scoreTextColour.setColor(Color.WHITE);
-        scoreTextColour.setTextSize(48.0f);
+        scoreTextColour.setTextSize(60.0f);
 
+        /*final Button btn= button;
+        btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Code here executes on main thread after user presses button
+                Reset();
+            }
+        });;*/
         canvasTranslateY=0;
 
-        //listener
-        //Log.d(TAG, "GameView: Sensor Manager Initialization");
         accelManager=new AccelerometerHandler(privContext);
 
         options=new BitmapFactory.Options();
@@ -202,18 +209,21 @@ public class GameView extends SurfaceView implements Runnable
         platformManager.SetPlatforms(context);
 
         player= new Player(context,playerSpawnPoint.x, playerSpawnPoint.y+150);
-        //player.SetupPlayer(context,4);
-        //whereToDrawBackgorund= new RectF(0,0, (float)screenHeight, (float)screenWidth);
 
+        menuBackground= BitmapFactory.decodeResource(getResources(),R.drawable.mainmenu);
+        menuBackground= Bitmap.createBitmap(menuBackground,0,0,menuBackground.getWidth(),menuBackground.getHeight());
+
+        menuImage = BitmapFactory.decodeResource(getResources(),R.drawable.title);
+        menuImage = Bitmap.createScaledBitmap(menuImage, 500,200,false);
 
         background = BitmapFactory.decodeResource(getResources(),R.drawable.img_background,options);
         background = Bitmap.createBitmap(background,0,0,background.getWidth(),background.getHeight());
-        //background = Bitmap.createScaledBitmap(background,screenWidth, screenHeight,false);
-        /*bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.run);
-        bitmap= Bitmap.createScaledBitmap(bitmap,frameW*frameCount,
-                frameH,false);*/
+
     }
 
+    public void Reset(){
+
+    }
 
 
     public void stop()
@@ -227,46 +237,52 @@ public class GameView extends SurfaceView implements Runnable
 
 
     public void draw() {
-        if(surfaceHolder.getSurface().isValid())
-        {
-            canvas= surfaceHolder.lockCanvas();
+        if(surfaceHolder.getSurface().isValid()) {
+            canvas = surfaceHolder.lockCanvas();
+
             canvas.drawColor(Color.BLACK);
 
-            int gridWidth=background.getWidth();
-            int gridHeight=background.getHeight();
+            // DRAWS Background
+            int gridWidth = background.getWidth();
+            int gridHeight = background.getHeight();
 
-            for(int i=0; i<screenHeight/gridHeight; i++){
-                for(int j=0; j<screenWidth/gridWidth; j++){
+            for (int i = 0; i < screenHeight / gridHeight; i++) {
+                for (int j = 0; j < screenWidth / gridWidth; j++) {
 
-                    canvas.drawBitmap(background,j*gridWidth,i*gridHeight,null);
+                    canvas.drawBitmap(background, j * gridWidth+20, i * gridHeight, null);
                 }
             }
 
-            //canvas.drawBitmap(background,0,0,null);
+            if (gameOver == false) {
 
-            canvas.translate(0,canvasTranslateY);
+                canvas.drawText("Score: " + player.getScore(), screenWidth / 2, 64, scoreTextColour);
 
-            platformManager.DrawPlatforms(canvas);
+                if (player.position.y < screenHeight) {
+                    player.draw(canvas);
+                    platformManager.DrawPlatforms(canvas);
 
-            player.draw(canvas);
-
-            canvas.drawText("Score: "+player.getScore(),screenWidth/2,64,scoreTextColour);
-
-
-
-            if(gameOver){
-                canvas.drawText("GAME OVER!",screenWidth/2,screenHeight/2,scoreTextColour);
-
-                if(player.position.y < screenHeight){
-
+                }else{
+                    finalScore=player.getScore();
+                    gameOver=true;
                 }
+            } else {
+
+                canvas.save();
+                canvas.rotate(10f);
+                canvas.drawText("GAME OVER!", screenWidth / 2, screenHeight / 2-250, scoreTextColour);
+                canvas.restore();
+                canvas.drawText("YOU SCORED " + finalScore + " POINTS ;)", screenWidth / 2 + 25, screenHeight / 2 + 25, scoreTextColour);
+
+
 
             }
-            //canvas.drawBitmap(bitmap,frameToDraw,
-                    //whereToDraw,null);
-            surfaceHolder.unlockCanvasAndPost(canvas);
+        surfaceHolder.unlockCanvasAndPost(canvas);
         }
+
     }
+
+
+
 
 
     private void update(double dt) {
@@ -274,7 +290,7 @@ public class GameView extends SurfaceView implements Runnable
         if (isMoving) {
             //platformManager.ResetPlatforms(player, 950);
             //platformManager.UpdatePlatforms(player);
-            
+            canvasTranslateY++;
             if(mediaPlayer.isPlaying())
             {
                 Log.d(TAG, "update: Yay there is music");
@@ -288,6 +304,7 @@ public class GameView extends SurfaceView implements Runnable
         }
     }
 
+
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
@@ -297,9 +314,9 @@ public class GameView extends SurfaceView implements Runnable
                 player.isJumping=true;
 
                 player.Jump((float)delta);
-                //canvasTranslateY -= player.velocity.y;
 
-                //System.out.println(jumpPressed);
+
+
         }
 
         return true;

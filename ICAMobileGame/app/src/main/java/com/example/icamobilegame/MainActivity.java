@@ -5,25 +5,42 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
     Button startButton;
-    GameView gameView;
-    boolean StartButtonPressed=false;
-    DisplayMetrics display= new DisplayMetrics();
+    Button exitButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindowManager().getDefaultDisplay().getMetrics(display);
-        gameView= new GameView(this, display);
-        setContentView(gameView);
+        setContentView(R.layout.activity_main);
 
 
+        startButton= findViewById(R.id.startbutton);
+
+        exitButton= findViewById(R.id.exitbutton);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Code here executes on main thread after user presses button
+                Intent intent = new Intent(v.getContext(), GameActivity.class);
+                startActivity(intent);
+                //gameView= new GameView(, display);
+                //setContentView(gameView);
+            }
+        });
+
+
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                MainActivity.this.finish();
+                System.exit(0);
+
+            }
+        });
     }
 
 
@@ -31,21 +48,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
-        gameView.resume();
+        if(startButton.isPressed()){
+            //gameView.resume();
+        }
+
 
     }
     protected void onPause(){
         super.onPause();
 
-        gameView.pause();
+        if(startButton.isPressed()){
+            //gameView.pause();
+        }
+
 
     }
     @Override
     protected void onStop() {
         super.onStop();
-
-        gameView.stop();
-
-
+        if(startButton.isPressed()){
+            //gameView.stop();
+        }
     }
 }
