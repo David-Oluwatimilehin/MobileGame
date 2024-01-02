@@ -15,10 +15,9 @@ public class PlatformManager {
 
     private List<Platform> platformsList;
     private Random rand;
-    private Platform tempPlat;
     private int barCount;
     private int screenHeight,screenWidth;
-    private boolean generateAgain;
+
     private boolean collisionResult;
     int SpawnX;
     int SpawnY;
@@ -35,7 +34,6 @@ public class PlatformManager {
         rand= new Random(90868);
         barCount=numOfPlatform;
 
-        generateAgain=false;
         screenWidth=sx;
         screenHeight=sy;
 
@@ -45,14 +43,7 @@ public class PlatformManager {
         lastPlatformX = 0;
         lastPlatformY = screenHeight - 40;
     }
-    public int getRandX(){
-        SpawnX= rand.nextInt((screenWidth-140));
-        return SpawnX;
-    }
-    private int getRandY(int playerY) {
-        SpawnY =  playerY - rand.nextInt(platformGenY / 10 * platformGenY);
-        return SpawnY;
-    }
+
 
 
     void SetPlatforms(Context context)
@@ -102,14 +93,6 @@ public class PlatformManager {
 
         }
 
-        /*for(int i = 0; i < barCount; i++){
-            //SpawnX= rand.nextInt(950);
-            //SpawnY= rand.nextInt(1950+50);
-
-            tempPlat =new Platform(context,SpawnX,SpawnY,1950,950);
-            this.platformsList.add(tempPlat);
-
-        }*/
     }
 
     boolean PlatformCollisionCheck(Player playerRef,float deltaTime){
@@ -142,9 +125,7 @@ public class PlatformManager {
 
         float playerY = player.position.y;
 
-        /*if (player.position.y > platformsList.get(platformsList.size()-1).pos.y + screenHeight) {
-            platformsList.add(new Platform(context, getRandX(),/*getRandY((int)player.position.y(int) ((int)platformsList.get(platformsList.size()-1).pos.y-100)));
-        }*/
+
         //Check if the player has moved upwards
         if (playerY < lastPlayerY) {
              deltaY = lastPlayerY - playerY;
@@ -156,9 +137,9 @@ public class PlatformManager {
 
             // Generate new platforms at the bottom
 
-            generateAgain=true;
-            generatePlatformsAboveScreen(deltaY,context);
-            generateAgain=false;
+
+            generatePlatformsAboveScreen(context);
+
         }
 
         lastPlayerY = playerY;
@@ -181,16 +162,17 @@ public class PlatformManager {
         }
     }
 
-    void generatePlatformsAboveScreen(float deltaY,Context context){
+    void generatePlatformsAboveScreen(Context context){
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
 
             float x = rand.nextInt(screenWidth - 140);
-            float y = rand.nextInt(200);
+            float y = rand.nextInt(150);
 
             int randNum;
             randNum=rand.nextInt(9+1);
             System.out.println("rand num generated: "+randNum);
+            // This is really bad Code
             switch(randNum){
                 case 0:
                 case 9:
@@ -214,25 +196,6 @@ public class PlatformManager {
 
             }
 
-
-
-        }
-    }
-    void ResetPlatforms(Player playerRef, int height)
-    {
-        int limit = height/3;
-        height=height*2;
-
-        if(playerRef.position.y>=limit){
-            for(int i=0; i<barCount;++i){
-                playerRef.position.y= limit;
-                platformsList.get(i).pos.y-=playerRef.position.y;
-
-                if(platformsList.get(i).pos.y>height+10){
-                    platformsList.get(i).pos.y= rand.nextInt(1950/3+100);
-                    platformsList.get(i).pos.x=rand.nextInt(950);
-                }
-            }
 
 
         }

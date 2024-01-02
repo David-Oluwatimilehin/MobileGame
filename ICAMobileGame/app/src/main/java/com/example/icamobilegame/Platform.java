@@ -110,7 +110,7 @@ public class Platform {
     public void draw(Canvas canvas) {
 
         hitBox.offsetTo((int)this.pos.x,(int)this.pos.y);
-        canvas.drawRect(hitBox,myPaint);
+        //canvas.drawRect(hitBox,myPaint);
         canvas.drawBitmap(bitmap, this.pos.x, this.pos.y, null);
 
 

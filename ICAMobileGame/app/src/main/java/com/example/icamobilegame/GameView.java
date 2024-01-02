@@ -1,16 +1,21 @@
 package com.example.icamobilegame;
 
+import static android.content.Intent.getIntent;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static androidx.core.app.ActivityCompat.recreate;
+import static androidx.core.content.ContextCompat.startActivity;
 
 import static java.lang.Thread.sleep;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -30,6 +35,7 @@ public class GameView extends SurfaceView implements Runnable
 {
     private SurfaceHolder surfaceHolder;
 
+    private GameActivity activity;
     private Bitmap background;
     private Bitmap menuBackground;
     private Bitmap menuImage;
@@ -154,13 +160,6 @@ public class GameView extends SurfaceView implements Runnable
 
             }
 
-            /*long now= System.currentTimeMillis();
-            if(now-lastFPSCheck >= 1000){
-                //Log.d(TAG, "FPS: "+ fps +" "+System.currentTimeMillis());
-                fps = 0;
-                lastFPSCheck += 1000;
-            }*/
-
 
         }
 
@@ -169,32 +168,30 @@ public class GameView extends SurfaceView implements Runnable
 
 
 
-    public GameView(Context context, DisplayMetrics dis)
+    public GameView(Context context, DisplayMetrics dis,GameActivity gameActivity)
     {
         super(context);
+        activity=gameActivity;
 
         privContext =context.getApplicationContext();
         surfaceHolder = getHolder();
 
-        mediaPlayer = MediaPlayer.create(privContext, R.raw.badtheme);
+        mediaPlayer = MediaPlayer.create(privContext, R.raw.gametheme);
         mediaPlayer.setLooping(true);
         soundEffect= MediaPlayer.create(privContext,R.raw.jumpsound);
 
         gameOver = false;
         gameStarted=true;
         finalScore = 0;
+
+
         scoreTextColour= new Paint(Paint.ANTI_ALIAS_FLAG);
         scoreTextColour.setTextAlign(Paint.Align.CENTER);
+
         scoreTextColour.setColor(Color.WHITE);
         scoreTextColour.setTextSize(60.0f);
 
-        /*final Button btn= button;
-        btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Code here executes on main thread after user presses button
-                Reset();
-            }
-        });;*/
+
         canvasTranslateY=0;
 
         accelManager=new AccelerometerHandler(privContext);
@@ -229,7 +226,7 @@ public class GameView extends SurfaceView implements Runnable
     public void stop()
     {
 
-        //manager.unregisterListener(listener);
+
         mediaPlayer.release();
         soundEffect.release();
     }
@@ -267,12 +264,14 @@ public class GameView extends SurfaceView implements Runnable
                 }
             } else {
 
+
                 canvas.save();
-                canvas.rotate(10f);
+
                 canvas.drawText("GAME OVER!", screenWidth / 2, screenHeight / 2-250, scoreTextColour);
                 canvas.restore();
-                canvas.drawText("YOU SCORED " + finalScore + " POINTS ;)", screenWidth / 2 + 25, screenHeight / 2 + 25, scoreTextColour);
+                canvas.drawText("YOU SCORED " + finalScore + " POINTS! ", screenWidth / 2, screenHeight / 2 + 25, scoreTextColour);
 
+                canvas.drawText("TAP SCREEN TO PLAY AGAIN", screenWidth / 2, screenHeight / 2 + 250, scoreTextColour);
 
 
             }
@@ -290,17 +289,25 @@ public class GameView extends SurfaceView implements Runnable
         if (isMoving) {
             //platformManager.ResetPlatforms(player, 950);
             //platformManager.UpdatePlatforms(player);
-            canvasTranslateY++;
-            if(mediaPlayer.isPlaying())
-            {
-                Log.d(TAG, "update: Yay there is music");
+
+            if(playing) {
+
+                if (accelManager.getAccelX() > 3) {
+                    player.position = player.moveLeft(accelManager.linear_acceleration[0]);
+                }
+                if (accelManager.getAccelX() < -3) {
+                    player.position = player.moveRight(-accelManager.linear_acceleration[0]);
+                }
             }
+
+            player.update(screenWidth);
+
             if(platformManager.PlatformCollisionCheck(player, (float) dt)){
                 soundEffect.start();
-                soundEffect.reset();
+
             }
             platformManager.UpdatePlatforms(player,privContext);
-            player.update(screenWidth);
+
         }
     }
 
@@ -315,11 +322,15 @@ public class GameView extends SurfaceView implements Runnable
 
                 player.Jump((float)delta);
 
-
+                if(gameOver){
+                    activity.recreate();
+                }
 
         }
 
         return true;
     }
+
+
 
 }

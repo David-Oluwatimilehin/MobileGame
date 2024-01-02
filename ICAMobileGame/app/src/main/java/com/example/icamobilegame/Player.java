@@ -158,7 +158,7 @@ public class Player {
     {
         //playerPaint.setColor(Color.GREEN);
 
-        canvas.drawRect(hitBox, playerPaint);
+        //canvas.drawRect(hitBox, playerPaint);
         canvas.drawBitmap(getSprites(playerAnimY,playerAnimX), this.position.x, this.position.y,null);
         Animate();
         // TODO: Fix Animation

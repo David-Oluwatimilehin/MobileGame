@@ -20,7 +20,7 @@ public class GameActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(display);
 
         //startActivity(intent);
-        gameView= new GameView(this, display);
+        gameView= new GameView(this, display,this);
         setContentView(gameView);
 
     }
@@ -34,11 +34,13 @@ public class GameActivity extends AppCompatActivity {
     }
     protected void onPause(){
         super.onPause();
-
+        gameView.pause();
     }
+
     @Override
     protected void onStop() {
         super.onStop();
+        gameView.stop();
 
     }
 }

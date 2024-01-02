@@ -22,7 +22,7 @@ public class AccelerometerHandler implements SensorEventListener {
     private SensorManager manager;
 
     private float gravity[] = new float[3];
-    private float linear_acceleration[] = new float[3];
+    public float linear_acceleration[] = new float[3];
 
     public AccelerometerHandler(Context context) {
         manager = (SensorManager)
@@ -34,6 +34,8 @@ public class AccelerometerHandler implements SensorEventListener {
                     manager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
             manager.registerListener(this, accelerometer,
                     SensorManager.SENSOR_DELAY_GAME);
+        }else{
+            Log.d(TAG, "Do not have accel: ");
         }
     }
 
